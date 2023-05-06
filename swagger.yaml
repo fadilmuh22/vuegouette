@@ -1,0 +1,34 @@
+basePath: /
+consumes:
+    - application/json
+host: '{{.Host}}'
+info:
+    description: Documentation of our reskuy API.
+    title: reskuy.
+    version: 1.0.0
+paths:
+    /foobar:
+        post:
+            operationId: idOfFoobarEndpoint
+            parameters:
+                - description: This text will appear as description of your request body.
+                  in: body
+                  name: Body
+                  schema: {}
+            responses:
+                "200":
+                    $ref: '#/responses/foobarResponse'
+            summary: Foobar does some amazing stuff.
+            tags:
+                - foobar-tag
+produces:
+    - application/json
+responses:
+    foobarResponse:
+        description: This text will appear as description of your response body.
+schemes:
+    - http
+securityDefinitions:
+    basic:
+        type: basic
+swagger: "2.0"

@@ -61,10 +61,13 @@ func deleteProduct(c echo.Context) error {
 	return c.JSON(http.StatusOK, "Product deleted")
 }
 
-func HandleProduct(g *echo.Group) {
-	g.GET("/product", getProducts)
-	g.POST("/product", createProduct)
-	g.GET("/product/:id", getProduct)
-	g.PUT("/product/:id", updateProduct)
-	g.DELETE("/product/:id", deleteProduct)
+func HandleRoutes(g *echo.Group) {
+	product := g.Group("product")
+	{
+		product.GET("/product", getProducts)
+		product.POST("/product", createProduct)
+		product.GET("/product/:id", getProduct)
+		product.PUT("/product/:id", updateProduct)
+		product.DELETE("/product/:id", deleteProduct)
+	}
 }

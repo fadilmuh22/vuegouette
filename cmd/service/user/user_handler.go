@@ -3,7 +3,7 @@ package user
 import (
 	"net/http"
 
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
 )
 
 func getAllUser(c echo.Context) error {
@@ -61,10 +61,13 @@ func deleteUser(c echo.Context) error {
 	return c.JSON(http.StatusOK, "User deleted")
 }
 
-func HandleUser(g *echo.Group) {
-	g.GET("/user", getAllUser)
-	g.GET("/user/:id", getUser)
-	g.POST("/user", createUser)
-	g.PUT("/user/:id", updateUser)
-	g.DELETE("/user/:id", deleteUser)
+func HandleRoutes(g *echo.Group) {
+	user := g.Group("/user")
+	{
+		user.GET("", getAllUser)
+		user.GET("/:id", getUser)
+		user.POST("", createUser)
+		user.PUT("/:id", updateUser)
+		user.DELETE("/:id", deleteUser)
+	}
 }
