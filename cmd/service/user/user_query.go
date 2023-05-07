@@ -1,14 +1,19 @@
 package user
 
-import "restskuy/cmd/db"
+import (
+	"log"
+
+	"github.com/fadilmuh22/restskuy/cmd/db"
+	"github.com/fadilmuh22/restskuy/cmd/model"
+)
 
 // get all user with db
-func GetAllUser() ([]User, error) {
-	var users []User
+func GetAllUser() ([]model.User, error) {
+	var users []model.User
 	c := db.Connect()
 
 	// retrive user from db using sql query store in users
-	result, err := c.Query("SELECT * FROM user")
+	result, err := c.Query("SELECT id, name, email, password FROM user")
 	if err != nil {
 		return nil, err
 	}
@@ -16,7 +21,7 @@ func GetAllUser() ([]User, error) {
 	defer result.Close()
 
 	for result.Next() {
-		var user User
+		var user model.User
 		err := result.Scan(&user.ID, &user.Name, &user.Email, &user.Password)
 		if err != nil {
 			return nil, err
@@ -28,38 +33,48 @@ func GetAllUser() ([]User, error) {
 	return users, nil
 }
 
-func GetUser(ID string) (User, error) {
-	var user User
+func GetUser(ID string) (model.User, error) {
+	var user model.User
 	c := db.Connect()
 
-	result, err := c.Query("SELECT * FROM user WHERE id = ?", ID)
+	result, err := c.Query("SELECT id, name, email, password FROM user WHERE id = ?", ID)
 	if err != nil {
 		return user, err
 	}
 
 	defer result.Close()
 
-	errorScan := result.Scan(&user.ID, &user.Name, &user.Email, &user.Password)
-	if errorScan != nil {
-		return user, errorScan
+	for result.Next() {
+		err := result.Scan(&user.ID, &user.Name, &user.Email, &user.Password)
+		if err != nil {
+			log.Fatal(err)
+			return user, err
+		}
 	}
 
 	return user, nil
 
 }
 
-func CreateUser(user User) (User, error) {
+func CreateUser(user model.User) (model.User, error) {
 	c := db.Connect()
 
-	_, err := c.Exec("INSERT INTO user (name, email, password) VALUES (?, ?, ?)", user.Name, user.Email, user.Password)
+	result, err := c.Exec("INSERT INTO user (name, email, password) VALUES (?, ?, ?)", user.Name, user.Email, user.Password)
 	if err != nil {
 		return user, err
 	}
 
+	id, err := result.LastInsertId()
+	if err != nil {
+		return user, err
+	}
+
+	user.ID = int(id)
+
 	return user, nil
 }
 
-func UpdateUser(id string, user User) (User, error) {
+func UpdateUser(id string, user model.User) (model.User, error) {
 	c := db.Connect()
 
 	_, err := c.Exec("UPDATE user SET name = ?, email = ?, password = ? WHERE id = ?", user.Name, user.Email, user.Password, id)

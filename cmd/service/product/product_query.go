@@ -1,12 +1,15 @@
 package product
 
-import "restskuy/cmd/db"
+import (
+	"github.com/fadilmuh22/restskuy/cmd/db"
+	"github.com/fadilmuh22/restskuy/cmd/model"
+)
 
-func GetAllProduct() ([]Product, error) {
-	var products []Product
+func GetAllProduct() ([]model.Product, error) {
+	var products []model.Product
 	c := db.Connect()
 
-	result, err := c.Query("SELECT * FROM product")
+	result, err := c.Query("SELECT id, name, price, description, stock FROM product")
 	if err != nil {
 		return nil, err
 	}
@@ -14,8 +17,8 @@ func GetAllProduct() ([]Product, error) {
 	defer result.Close()
 
 	for result.Next() {
-		var product Product
-		err := result.Scan(&product.ID, &product.Name, &product.Description, &product.Price, &product.Stock)
+		var product model.Product
+		err := result.Scan(&product.ID, &product.Name, &product.Price, &product.Description, &product.Stock)
 		if err != nil {
 			return nil, err
 		}
@@ -26,38 +29,49 @@ func GetAllProduct() ([]Product, error) {
 	return products, nil
 }
 
-func GetProduct(id string) (Product, error) {
-	var product Product
+func GetProduct(id string) (model.Product, error) {
+	var product model.Product
 	c := db.Connect()
 
-	result, err := c.Query("SELECT * FROM product WHERE id = ?", id)
+	result, err := c.Query("SELECT id, name, price, description, stock FROM product WHERE id = ?", id)
 	if err != nil {
 		return product, err
 	}
 
 	defer result.Close()
 
-	errorScan := result.Scan(&product.ID, &product.Name, &product.Description, &product.Price, &product.Stock)
-	if errorScan != nil {
-		return product, errorScan
+	for result.Next() {
+		err := result.Scan(&product.ID, &product.Name, &product.Description, &product.Price, &product.Stock)
+		if err != nil {
+			return product, err
+		}
 	}
 
 	return product, nil
 }
 
-func CreateProduct(product Product) (Product, error) {
+// create product with db and return product from db
+func CreateProduct(product model.Product) (model.Product, error) {
 	c := db.Connect()
 
-	_, err := c.Exec("INSERT INTO product (name, price, stock) VALUES (?, ?, ?)", product.Name, product.Price, product.Stock)
-
+	// insert product to db using sql query store in result
+	result, err := c.Exec("INSERT INTO product (name, price, description, stock) VALUES (?, ?, ?, ?)", product.Name, product.Price, product.Description, product.Stock)
 	if err != nil {
 		return product, err
 	}
 
+	// get last insert id from result
+	id, err := result.LastInsertId()
+	if err != nil {
+		return product, err
+	}
+
+	product.ID = int(id)
+
 	return product, nil
 }
 
-func UpdateProduct(id string, product Product) (Product, error) {
+func UpdateProduct(id string, product model.Product) (model.Product, error) {
 	c := db.Connect()
 
 	_, err := c.Exec("UPDATE product SET name = ?, price = ?, stock = ? WHERE id = ?", product.Name, product.Price, product.Stock, id)

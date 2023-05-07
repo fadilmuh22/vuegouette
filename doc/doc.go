@@ -3,9 +3,9 @@
 // Documentation of our reskuy API.
 //
 //	 Schemes: http
-//	 BasePath: /
+//	 BasePath: /api
 //	 Version: 1.0.0
-//	 Host: {{.Host}}
+//	 Host: 0.0.0.0:1323
 //
 //	 Consumes:
 //	 - application/json
@@ -21,4 +21,4 @@
 //	  type: basic
 //
 // swagger:meta
-package docs
+package doc

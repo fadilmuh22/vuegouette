@@ -1,0 +1,222 @@
+basePath: /api
+consumes:
+    - application/json
+definitions:
+    Product:
+        properties:
+            description:
+                type: string
+                x-go-name: Description
+            id:
+                format: int64
+                type: integer
+                x-go-name: ID
+            name:
+                type: string
+                x-go-name: Name
+            price:
+                format: double
+                type: number
+                x-go-name: Price
+            stock:
+                format: int64
+                type: integer
+                x-go-name: Stock
+        type: object
+        x-go-package: github.com/fadilmuh22/restskuy/cmd/model
+    User:
+        properties:
+            email:
+                type: string
+                x-go-name: Email
+            id:
+                format: int64
+                type: integer
+                x-go-name: ID
+            name:
+                type: string
+                x-go-name: Name
+            password:
+                type: string
+                x-go-name: Password
+        type: object
+        x-go-package: github.com/fadilmuh22/restskuy/cmd/model
+host: 0.0.0.0:1323
+info:
+    description: Documentation of our reskuy API.
+    title: reskuy.
+    version: 1.0.0
+paths:
+    /product:
+        get:
+            operationId: listProducts
+            responses:
+                "200":
+                    $ref: '#/responses/productsResponse'
+            summary: List all products.
+            tags:
+                - product
+        post:
+            operationId: createProduct
+            parameters:
+                - in: body
+                  name: Body
+                  schema:
+                    $ref: '#/definitions/Product'
+            responses:
+                "200":
+                    $ref: '#/responses/productResponse'
+            summary: Create a new product.
+            tags:
+                - product
+    /product/{id}:
+        delete:
+            operationId: deleteProduct
+            parameters:
+                - format: int64
+                  in: path
+                  name: id
+                  required: true
+                  type: integer
+                  x-go-name: ID
+            responses:
+                "200":
+                    $ref: '#/responses/productResponse'
+            summary: Delete a product by id.
+            tags:
+                - product
+        get:
+            operationId: getProduct
+            parameters:
+                - format: int64
+                  in: path
+                  name: id
+                  required: true
+                  type: integer
+                  x-go-name: ID
+            responses:
+                "200":
+                    $ref: '#/responses/productResponse'
+            summary: Get a product by id.
+            tags:
+                - product
+        put:
+            operationId: updateProduct
+            parameters:
+                - format: int64
+                  in: path
+                  name: id
+                  required: true
+                  type: integer
+                  x-go-name: ID
+                - in: body
+                  name: Body
+                  schema:
+                    $ref: '#/definitions/Product'
+            responses:
+                "200":
+                    $ref: '#/responses/productResponse'
+            summary: Update a product by id.
+            tags:
+                - product
+    /user:
+        get:
+            operationId: listUsers
+            responses:
+                "200":
+                    $ref: '#/responses/usersResponse'
+            summary: List all users.
+            tags:
+                - user
+        post:
+            operationId: createUser
+            parameters:
+                - in: body
+                  name: Body
+                  schema:
+                    $ref: '#/definitions/User'
+            responses:
+                "200":
+                    $ref: '#/responses/userResponse'
+            summary: Create a new user.
+            tags:
+                - user
+    /user/{id}:
+        delete:
+            operationId: deleteUser
+            parameters:
+                - format: int64
+                  in: path
+                  name: id
+                  required: true
+                  type: integer
+                  x-go-name: ID
+            responses:
+                "200":
+                    $ref: '#/responses/userResponse'
+            summary: Delete a user by id.
+            tags:
+                - user
+        get:
+            operationId: getUser
+            parameters:
+                - format: int64
+                  in: path
+                  name: id
+                  required: true
+                  type: integer
+                  x-go-name: ID
+            responses:
+                "200":
+                    $ref: '#/responses/userResponse'
+            summary: Get a user by id.
+            tags:
+                - user
+        put:
+            operationId: updateUser
+            parameters:
+                - format: int64
+                  in: path
+                  name: id
+                  required: true
+                  type: integer
+                  x-go-name: ID
+                - in: body
+                  name: Body
+                  schema:
+                    $ref: '#/definitions/User'
+            responses:
+                "200":
+                    $ref: '#/responses/userResponse'
+            summary: Update a user by id.
+            tags:
+                - user
+produces:
+    - application/json
+responses:
+    productResponse:
+        description: ""
+        schema:
+            $ref: '#/definitions/Product'
+    productsResponse:
+        description: ""
+        schema:
+            items:
+                $ref: '#/definitions/Product'
+            type: array
+    userResponse:
+        description: ""
+        schema:
+            $ref: '#/definitions/User'
+    usersResponse:
+        description: ""
+        schema:
+            items:
+                $ref: '#/definitions/User'
+            type: array
+schemes:
+    - http
+securityDefinitions:
+    basic:
+        type: basic
+swagger: "2.0"
