@@ -1,15 +1,21 @@
-package product
+package handler
 
 import (
+	"database/sql"
 	"net/http"
 
 	"github.com/fadilmuh22/restskuy/cmd/model"
+	"github.com/fadilmuh22/restskuy/cmd/service"
 	"github.com/labstack/echo/v4"
 )
 
+type ProductHandler struct {
+	service service.ProductService
+}
+
 // getProducts with query
-func getProducts(c echo.Context) error {
-	products, err := GetAllProduct()
+func (h ProductHandler) getProducts(c echo.Context) error {
+	products, err := h.service.GetAllProduct()
 	if err != nil {
 		return err
 	}
@@ -21,9 +27,9 @@ func getProducts(c echo.Context) error {
 	})
 }
 
-func getProduct(c echo.Context) error {
+func (h ProductHandler) getProduct(c echo.Context) error {
 	id := c.Param("id")
-	product, err := GetProduct(id)
+	product, err := h.service.GetProduct(id)
 	if err != nil {
 		return err
 	}
@@ -35,11 +41,11 @@ func getProduct(c echo.Context) error {
 	})
 }
 
-func createProduct(c echo.Context) error {
+func (h ProductHandler) createProduct(c echo.Context) error {
 	var product model.Product
 	c.Bind(&product)
 
-	product, err := CreateProduct(product)
+	product, err := h.service.CreateProduct(product)
 	if err != nil {
 		return err
 	}
@@ -51,12 +57,12 @@ func createProduct(c echo.Context) error {
 	})
 }
 
-func updateProduct(c echo.Context) error {
+func (h ProductHandler) updateProduct(c echo.Context) error {
 	var product model.Product
 	c.Bind(&product)
 
 	id := c.Param("id")
-	product, err := UpdateProduct(id, product)
+	product, err := h.service.UpdateProduct(id, product)
 	if err != nil {
 		return err
 	}
@@ -68,9 +74,9 @@ func updateProduct(c echo.Context) error {
 	})
 }
 
-func deleteProduct(c echo.Context) error {
+func (h ProductHandler) deleteProduct(c echo.Context) error {
 	id := c.Param("id")
-	err := DeleteProduct(id)
+	err := h.service.DeleteProduct(id)
 	if err != nil {
 		return err
 	}
@@ -82,13 +88,21 @@ func deleteProduct(c echo.Context) error {
 	})
 }
 
-func HandleRoutes(g *echo.Group) {
+func (h ProductHandler) HandleRoutes(g *echo.Group) {
 	product := g.Group("/product")
 	{
-		product.GET("", getProducts)
-		product.POST("", createProduct)
-		product.GET("/:id", getProduct)
-		product.PUT("/:id", updateProduct)
-		product.DELETE("/:id", deleteProduct)
+		product.GET("", h.getProducts)
+		product.POST("", h.createProduct)
+		product.GET("/:id", h.getProduct)
+		product.PUT("/:id", h.updateProduct)
+		product.DELETE("/:id", h.deleteProduct)
+	}
+}
+
+func NewProductHandler(con *sql.DB) ProductHandler {
+	return ProductHandler{
+		service: service.ProductService{
+			Con: con,
+		},
 	}
 }

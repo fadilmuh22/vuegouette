@@ -1,14 +1,20 @@
-package user
+package handler
 
 import (
+	"database/sql"
 	"net/http"
 
 	"github.com/fadilmuh22/restskuy/cmd/model"
+	"github.com/fadilmuh22/restskuy/cmd/service"
 	"github.com/labstack/echo/v4"
 )
 
-func getAllUser(c echo.Context) error {
-	users, err := GetAllUser()
+type UserHandler struct {
+	service service.UserService
+}
+
+func (h UserHandler) getAllUser(c echo.Context) error {
+	users, err := h.service.GetAllUser()
 	if err != nil {
 		return err
 	}
@@ -21,9 +27,9 @@ func getAllUser(c echo.Context) error {
 }
 
 // get user by id
-func getUser(c echo.Context) error {
+func (h UserHandler) getUser(c echo.Context) error {
 	id := c.Param("id")
-	user, err := GetUser(id)
+	user, err := h.service.GetUser(id)
 	if err != nil {
 		return err
 	}
@@ -35,11 +41,11 @@ func getUser(c echo.Context) error {
 	})
 }
 
-func createUser(c echo.Context) error {
+func (h UserHandler) createUser(c echo.Context) error {
 	var user model.User
 	c.Bind(&user)
 
-	user, err := CreateUser(user)
+	user, err := h.service.CreateUser(user)
 	if err != nil {
 		return err
 	}
@@ -51,12 +57,12 @@ func createUser(c echo.Context) error {
 	})
 }
 
-func updateUser(c echo.Context) error {
+func (h UserHandler) updateUser(c echo.Context) error {
 	var user model.User
 	c.Bind(&user)
 
 	id := c.Param("id")
-	user, err := UpdateUser(id, user)
+	user, err := h.service.UpdateUser(id, user)
 	if err != nil {
 		return err
 	}
@@ -68,9 +74,9 @@ func updateUser(c echo.Context) error {
 	})
 }
 
-func deleteUser(c echo.Context) error {
+func (h UserHandler) deleteUser(c echo.Context) error {
 	id := c.Param("id")
-	err := DeleteUser(id)
+	err := h.service.DeleteUser(id)
 	if err != nil {
 		return err
 	}
@@ -82,13 +88,21 @@ func deleteUser(c echo.Context) error {
 	})
 }
 
-func HandleRoutes(g *echo.Group) {
+func (h UserHandler) HandleRoutes(g *echo.Group) {
 	user := g.Group("/user")
 	{
-		user.GET("", getAllUser)
-		user.GET("/:id", getUser)
-		user.POST("", createUser)
-		user.PUT("/:id", updateUser)
-		user.DELETE("/:id", deleteUser)
+		user.GET("", h.getAllUser)
+		user.GET("/:id", h.getUser)
+		user.POST("", h.createUser)
+		user.PUT("/:id", h.updateUser)
+		user.DELETE("/:id", h.deleteUser)
+	}
+}
+
+func NewUserHandler(con *sql.DB) UserHandler {
+	return UserHandler{
+		service: service.UserService{
+			Con: con,
+		},
 	}
 }

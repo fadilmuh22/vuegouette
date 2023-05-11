@@ -2,54 +2,21 @@ package cmd
 
 import (
 	"context"
+	"database/sql"
 	"net/http"
 	"os"
 	"os/signal"
 	"time"
 
-	"github.com/fadilmuh22/restskuy/cmd/service/product"
-	"github.com/fadilmuh22/restskuy/cmd/service/user"
-	"github.com/fadilmuh22/restskuy/cmd/utils"
+	"github.com/fadilmuh22/restskuy/cmd/handler"
+	"github.com/fadilmuh22/restskuy/cmd/middleware"
+	"github.com/fadilmuh22/restskuy/cmd/util"
 
 	"github.com/labstack/echo/v4"
 	echomiddleware "github.com/labstack/echo/v4/middleware"
 )
 
-func setupRouter(e *echo.Echo) {
-	api := e.Group("api")
-
-	e.Static("/", "static/swaggerui")
-	e.File("/swagger.yaml", "static/swagger.yaml")
-
-	user.HandleRoutes(api)
-	product.HandleRoutes(api)
-}
-
-// echo middleware for transforming response to restful structure using struct called BasicResponse
-
-// go server using echo
-func StartServer() {
-	// Echo instance
-	e := echo.New()
-
-	// Middleware
-	e.Use(echomiddleware.Logger())
-	e.Use(echomiddleware.Recover())
-	e.Use(echomiddleware.CORS())
-
-	// e.Use(middleware.TransformErrorResponse)
-
-	cv := utils.CustomValidator{}
-	err := cv.Init()
-	if err != nil {
-		e.Logger.Fatal(err)
-	}
-	e.Validator = &cv
-
-	// Routes
-	setupRouter(e)
-
-	// Start server
+func runServer(e *echo.Echo) {
 	go func() {
 		if err := e.Start(":1323"); err != nil && err != http.ErrServerClosed {
 			e.Logger.Fatal("shutting down the server")
@@ -66,4 +33,34 @@ func StartServer() {
 	if err := e.Shutdown(ctx); err != nil {
 		e.Logger.Fatal(err)
 	}
+}
+
+// go server using echo
+func StartServer(con *sql.DB) {
+	// Echo instance
+	e := echo.New()
+
+	// Middleware
+	e.Use(echomiddleware.Logger())
+	e.Use(echomiddleware.Recover())
+	e.Use(echomiddleware.CORS())
+
+	e.Use(middleware.TransformErrorResponse)
+
+	// Validator
+	cv := util.CustomValidator{}
+	err := cv.Init()
+	if err != nil {
+		e.Logger.Fatal(err)
+	}
+	e.Validator = &cv
+
+	// Routes
+	api := e.Group("api")
+	handler.NewStaticHandler().HandleRoutes(api)
+	handler.NewUserHandler(con).HandleRoutes(api)
+	handler.NewProductHandler(con).HandleRoutes(api)
+
+	// Start server
+	runServer(e)
 }

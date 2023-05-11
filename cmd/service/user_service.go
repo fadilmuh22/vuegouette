@@ -1,19 +1,22 @@
-package user
+package service
 
 import (
+	"database/sql"
 	"log"
 
-	"github.com/fadilmuh22/restskuy/cmd/db"
 	"github.com/fadilmuh22/restskuy/cmd/model"
 )
 
+type UserService struct {
+	Con *sql.DB
+}
+
 // get all user with db
-func GetAllUser() ([]model.User, error) {
+func (s UserService) GetAllUser() ([]model.User, error) {
 	var users []model.User
-	c := db.Connect()
 
 	// retrive user from db using sql query store in users
-	result, err := c.Query("SELECT id, name, email, password FROM user")
+	result, err := s.Con.Query("SELECT id, name, email, password FROM user")
 	if err != nil {
 		return nil, err
 	}
@@ -33,11 +36,10 @@ func GetAllUser() ([]model.User, error) {
 	return users, nil
 }
 
-func GetUser(ID string) (model.User, error) {
+func (s UserService) GetUser(ID string) (model.User, error) {
 	var user model.User
-	c := db.Connect()
 
-	result, err := c.Query("SELECT id, name, email, password FROM user WHERE id = ?", ID)
+	result, err := s.Con.Query("SELECT id, name, email, password FROM user WHERE id = ?", ID)
 	if err != nil {
 		return user, err
 	}
@@ -56,10 +58,8 @@ func GetUser(ID string) (model.User, error) {
 
 }
 
-func CreateUser(user model.User) (model.User, error) {
-	c := db.Connect()
-
-	result, err := c.Exec("INSERT INTO user (name, email, password) VALUES (?, ?, ?)", user.Name, user.Email, user.Password)
+func (s UserService) CreateUser(user model.User) (model.User, error) {
+	result, err := s.Con.Exec("INSERT INTO user (name, email, password) VALUES (?, ?, ?)", user.Name, user.Email, user.Password)
 	if err != nil {
 		return user, err
 	}
@@ -74,10 +74,8 @@ func CreateUser(user model.User) (model.User, error) {
 	return user, nil
 }
 
-func UpdateUser(id string, user model.User) (model.User, error) {
-	c := db.Connect()
-
-	_, err := c.Exec("UPDATE user SET name = ?, email = ?, password = ? WHERE id = ?", user.Name, user.Email, user.Password, id)
+func (s UserService) UpdateUser(id string, user model.User) (model.User, error) {
+	_, err := s.Con.Exec("UPDATE user SET name = ?, email = ?, password = ? WHERE id = ?", user.Name, user.Email, user.Password, id)
 	if err != nil {
 		return user, err
 	}
@@ -85,10 +83,8 @@ func UpdateUser(id string, user model.User) (model.User, error) {
 	return user, nil
 }
 
-func DeleteUser(id string) error {
-	c := db.Connect()
-
-	_, err := c.Exec("DELETE FROM user WHERE id = ?", id)
+func (s UserService) DeleteUser(id string) error {
+	_, err := s.Con.Exec("DELETE FROM user WHERE id = ?", id)
 	if err != nil {
 		return err
 	}

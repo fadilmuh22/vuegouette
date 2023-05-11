@@ -1,15 +1,19 @@
-package product
+package service
 
 import (
-	"github.com/fadilmuh22/restskuy/cmd/db"
+	"database/sql"
+
 	"github.com/fadilmuh22/restskuy/cmd/model"
 )
 
-func GetAllProduct() ([]model.Product, error) {
-	var products []model.Product
-	c := db.Connect()
+type ProductService struct {
+	Con *sql.DB
+}
 
-	result, err := c.Query("SELECT id, name, price, description, stock FROM product")
+func (s ProductService) GetAllProduct() ([]model.Product, error) {
+	var products []model.Product
+
+	result, err := s.Con.Query("SELECT id, name, price, description, stock FROM product")
 	if err != nil {
 		return nil, err
 	}
@@ -29,11 +33,10 @@ func GetAllProduct() ([]model.Product, error) {
 	return products, nil
 }
 
-func GetProduct(id string) (model.Product, error) {
+func (s ProductService) GetProduct(id string) (model.Product, error) {
 	var product model.Product
-	c := db.Connect()
 
-	result, err := c.Query("SELECT id, name, price, description, stock FROM product WHERE id = ?", id)
+	result, err := s.Con.Query("SELECT id, name, price, description, stock FROM product WHERE id = ?", id)
 	if err != nil {
 		return product, err
 	}
@@ -51,11 +54,9 @@ func GetProduct(id string) (model.Product, error) {
 }
 
 // create product with db and return product from db
-func CreateProduct(product model.Product) (model.Product, error) {
-	c := db.Connect()
-
+func (s ProductService) CreateProduct(product model.Product) (model.Product, error) {
 	// insert product to db using sql query store in result
-	result, err := c.Exec("INSERT INTO product (name, price, description, stock) VALUES (?, ?, ?, ?)", product.Name, product.Price, product.Description, product.Stock)
+	result, err := s.Con.Exec("INSERT INTO product (name, price, description, stock) VALUES (?, ?, ?, ?)", product.Name, product.Price, product.Description, product.Stock)
 	if err != nil {
 		return product, err
 	}
@@ -71,10 +72,8 @@ func CreateProduct(product model.Product) (model.Product, error) {
 	return product, nil
 }
 
-func UpdateProduct(id string, product model.Product) (model.Product, error) {
-	c := db.Connect()
-
-	_, err := c.Exec("UPDATE product SET name = ?, price = ?, stock = ? WHERE id = ?", product.Name, product.Price, product.Stock, id)
+func (s ProductService) UpdateProduct(id string, product model.Product) (model.Product, error) {
+	_, err := s.Con.Exec("UPDATE product SET name = ?, price = ?, stock = ? WHERE id = ?", product.Name, product.Price, product.Stock, id)
 
 	if err != nil {
 		return product, err
@@ -83,10 +82,8 @@ func UpdateProduct(id string, product model.Product) (model.Product, error) {
 	return product, nil
 }
 
-func DeleteProduct(id string) error {
-	c := db.Connect()
-
-	_, err := c.Exec("DELETE FROM product WHERE id = ?", id)
+func (s ProductService) DeleteProduct(id string) error {
+	_, err := s.Con.Exec("DELETE FROM product WHERE id = ?", id)
 
 	if err != nil {
 		return err
