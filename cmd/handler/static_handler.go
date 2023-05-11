@@ -2,14 +2,13 @@ package handler
 
 import "github.com/labstack/echo/v4"
 
-type StaticHandler struct {
-}
+type staticHandler struct{}
 
-func (h StaticHandler) HandleRoutes(g *echo.Group) {
+func (h staticHandler) HandleRoutes(g *echo.Group) {
 	g.Static("/", "static/swaggerui")
 	g.File("/swagger.yaml", "static/swagger.yaml")
 }
 
-func NewStaticHandler() StaticHandler {
-	return StaticHandler{}
+func NewStaticHandler() Handler {
+	return staticHandler{}
 }

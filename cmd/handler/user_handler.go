@@ -9,11 +9,11 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-type UserHandler struct {
+type userHandler struct {
 	service service.UserService
 }
 
-func (h UserHandler) getAllUser(c echo.Context) error {
+func (h userHandler) getAllUser(c echo.Context) error {
 	users, err := h.service.GetAllUser()
 	if err != nil {
 		return err
@@ -27,7 +27,7 @@ func (h UserHandler) getAllUser(c echo.Context) error {
 }
 
 // get user by id
-func (h UserHandler) getUser(c echo.Context) error {
+func (h userHandler) getUser(c echo.Context) error {
 	id := c.Param("id")
 	user, err := h.service.GetUser(id)
 	if err != nil {
@@ -41,7 +41,7 @@ func (h UserHandler) getUser(c echo.Context) error {
 	})
 }
 
-func (h UserHandler) createUser(c echo.Context) error {
+func (h userHandler) createUser(c echo.Context) error {
 	var user model.User
 	c.Bind(&user)
 
@@ -57,7 +57,7 @@ func (h UserHandler) createUser(c echo.Context) error {
 	})
 }
 
-func (h UserHandler) updateUser(c echo.Context) error {
+func (h userHandler) updateUser(c echo.Context) error {
 	var user model.User
 	c.Bind(&user)
 
@@ -74,7 +74,7 @@ func (h UserHandler) updateUser(c echo.Context) error {
 	})
 }
 
-func (h UserHandler) deleteUser(c echo.Context) error {
+func (h userHandler) deleteUser(c echo.Context) error {
 	id := c.Param("id")
 	err := h.service.DeleteUser(id)
 	if err != nil {
@@ -88,7 +88,7 @@ func (h UserHandler) deleteUser(c echo.Context) error {
 	})
 }
 
-func (h UserHandler) HandleRoutes(g *echo.Group) {
+func (h userHandler) HandleRoutes(g *echo.Group) {
 	user := g.Group("/user")
 	{
 		user.GET("", h.getAllUser)
@@ -99,8 +99,8 @@ func (h UserHandler) HandleRoutes(g *echo.Group) {
 	}
 }
 
-func NewUserHandler(con *sql.DB) UserHandler {
-	return UserHandler{
+func NewUserHandler(con *sql.DB) Handler {
+	return userHandler{
 		service: service.UserService{
 			Con: con,
 		},

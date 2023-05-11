@@ -9,12 +9,12 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-type ProductHandler struct {
+type productHandler struct {
 	service service.ProductService
 }
 
 // getProducts with query
-func (h ProductHandler) getProducts(c echo.Context) error {
+func (h productHandler) getProducts(c echo.Context) error {
 	products, err := h.service.GetAllProduct()
 	if err != nil {
 		return err
@@ -27,7 +27,7 @@ func (h ProductHandler) getProducts(c echo.Context) error {
 	})
 }
 
-func (h ProductHandler) getProduct(c echo.Context) error {
+func (h productHandler) getProduct(c echo.Context) error {
 	id := c.Param("id")
 	product, err := h.service.GetProduct(id)
 	if err != nil {
@@ -41,7 +41,7 @@ func (h ProductHandler) getProduct(c echo.Context) error {
 	})
 }
 
-func (h ProductHandler) createProduct(c echo.Context) error {
+func (h productHandler) createProduct(c echo.Context) error {
 	var product model.Product
 	c.Bind(&product)
 
@@ -57,7 +57,7 @@ func (h ProductHandler) createProduct(c echo.Context) error {
 	})
 }
 
-func (h ProductHandler) updateProduct(c echo.Context) error {
+func (h productHandler) updateProduct(c echo.Context) error {
 	var product model.Product
 	c.Bind(&product)
 
@@ -74,7 +74,7 @@ func (h ProductHandler) updateProduct(c echo.Context) error {
 	})
 }
 
-func (h ProductHandler) deleteProduct(c echo.Context) error {
+func (h productHandler) deleteProduct(c echo.Context) error {
 	id := c.Param("id")
 	err := h.service.DeleteProduct(id)
 	if err != nil {
@@ -88,7 +88,7 @@ func (h ProductHandler) deleteProduct(c echo.Context) error {
 	})
 }
 
-func (h ProductHandler) HandleRoutes(g *echo.Group) {
+func (h productHandler) HandleRoutes(g *echo.Group) {
 	product := g.Group("/product")
 	{
 		product.GET("", h.getProducts)
@@ -99,8 +99,8 @@ func (h ProductHandler) HandleRoutes(g *echo.Group) {
 	}
 }
 
-func NewProductHandler(con *sql.DB) ProductHandler {
-	return ProductHandler{
+func NewProductHandler(con *sql.DB) Handler {
+	return productHandler{
 		service: service.ProductService{
 			Con: con,
 		},
