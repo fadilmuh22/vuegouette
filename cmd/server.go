@@ -62,6 +62,7 @@ func StartServer() {
 	handler.NewStaticHandler().HandleRoutes(api)
 	handler.NewUserHandler(con).HandleRoutes(api)
 	handler.NewProductHandler(con).HandleRoutes(api)
+	handler.NewAuthHandler(con).HandleRoutes(api)
 
 	// Start server
 	runServer(e)

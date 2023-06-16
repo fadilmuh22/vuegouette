@@ -7,10 +7,6 @@ definitions:
             description:
                 type: string
                 x-go-name: Description
-            id:
-                format: int64
-                type: integer
-                x-go-name: ID
             name:
                 type: string
                 x-go-name: Name
@@ -22,6 +18,10 @@ definitions:
                 format: int64
                 type: integer
                 x-go-name: Stock
+            uuid:
+                format: uuid
+                type: string
+                x-go-name: UUID
         type: object
         x-go-package: github.com/fadilmuh22/restskuy/cmd/model
     User:
@@ -29,16 +29,16 @@ definitions:
             email:
                 type: string
                 x-go-name: Email
-            id:
-                format: int64
-                type: integer
-                x-go-name: ID
             name:
                 type: string
                 x-go-name: Name
             password:
                 type: string
                 x-go-name: Password
+            uuid:
+                format: uuid
+                type: string
+                x-go-name: UUID
         type: object
         x-go-package: github.com/fadilmuh22/restskuy/cmd/model
 host: 0.0.0.0:1323
@@ -47,6 +47,56 @@ info:
     title: reskuy.
     version: 1.0.0
 paths:
+    /auth/login:
+        post:
+            operationId: login
+            parameters:
+                - in: body
+                  name: Body
+                  schema:
+                    properties:
+                        email:
+                            description: The username
+                            type: string
+                            x-go-name: Email
+                        password:
+                            description: The password
+                            type: string
+                            x-go-name: Password
+                    required:
+                        - email
+                        - password
+                    type: object
+            responses:
+                "200":
+                    $ref: '#/responses/loginRegisterResponse'
+            summary: Login.
+            tags:
+                - auth
+    /auth/register:
+        post:
+            operationId: register
+            parameters:
+                - in: body
+                  name: Body
+                  schema:
+                    properties:
+                        email:
+                            type: string
+                            x-go-name: Email
+                        name:
+                            type: string
+                            x-go-name: Name
+                        password:
+                            type: string
+                            x-go-name: Password
+                    type: object
+            responses:
+                "200":
+                    $ref: '#/responses/loginRegisterResponse'
+            summary: Register.
+            tags:
+                - auth
     /product:
         get:
             operationId: listProducts
@@ -112,7 +162,22 @@ paths:
                 - in: body
                   name: Body
                   schema:
-                    $ref: '#/definitions/Product'
+                    properties:
+                        description:
+                            type: string
+                            x-go-name: Description
+                        name:
+                            type: string
+                            x-go-name: Name
+                        price:
+                            format: double
+                            type: number
+                            x-go-name: Price
+                        stock:
+                            format: int64
+                            type: integer
+                            x-go-name: Stock
+                    type: object
             responses:
                 "200":
                     $ref: '#/responses/productResponse'
@@ -145,11 +210,11 @@ paths:
         delete:
             operationId: deleteUser
             parameters:
-                - format: int64
+                - format: uuid
                   in: path
                   name: id
                   required: true
-                  type: integer
+                  type: string
                   x-go-name: ID
             responses:
                 "200":
@@ -160,11 +225,11 @@ paths:
         get:
             operationId: getUser
             parameters:
-                - format: int64
+                - format: uuid
                   in: path
                   name: id
                   required: true
-                  type: integer
+                  type: string
                   x-go-name: ID
             responses:
                 "200":
@@ -175,16 +240,26 @@ paths:
         put:
             operationId: updateUser
             parameters:
-                - format: int64
+                - format: uuid
                   in: path
                   name: id
                   required: true
-                  type: integer
+                  type: string
                   x-go-name: ID
                 - in: body
                   name: Body
                   schema:
-                    $ref: '#/definitions/User'
+                    properties:
+                        email:
+                            type: string
+                            x-go-name: Email
+                        name:
+                            type: string
+                            x-go-name: Name
+                        password:
+                            type: string
+                            x-go-name: Password
+                    type: object
             responses:
                 "200":
                     $ref: '#/responses/userResponse'
@@ -194,26 +269,88 @@ paths:
 produces:
     - application/json
 responses:
+    loginRegisterResponse:
+        description: ""
+        schema:
+            properties:
+                Data:
+                    properties:
+                        token:
+                            description: The token
+                            type: string
+                            x-go-name: Token
+                        user:
+                            $ref: '#/definitions/User'
+                    type: object
+                data:
+                    x-go-name: Data
+                message:
+                    type: string
+                    x-go-name: Message
+                status:
+                    type: boolean
+                    x-go-name: Success
+            type: object
     productResponse:
         description: ""
         schema:
-            $ref: '#/definitions/Product'
+            properties:
+                data:
+                    $ref: '#/definitions/Product'
+                    x-go-name: Data
+                message:
+                    type: string
+                    x-go-name: Message
+                status:
+                    type: boolean
+                    x-go-name: Success
+            type: object
     productsResponse:
         description: ""
         schema:
-            items:
-                $ref: '#/definitions/Product'
-            type: array
+            properties:
+                data:
+                    items:
+                        $ref: '#/definitions/Product'
+                    type: array
+                    x-go-name: Data
+                message:
+                    type: string
+                    x-go-name: Message
+                status:
+                    type: boolean
+                    x-go-name: Success
+            type: object
     userResponse:
         description: ""
         schema:
-            $ref: '#/definitions/User'
+            properties:
+                data:
+                    $ref: '#/definitions/User'
+                    x-go-name: Data
+                message:
+                    type: string
+                    x-go-name: Message
+                status:
+                    type: boolean
+                    x-go-name: Success
+            type: object
     usersResponse:
         description: ""
         schema:
-            items:
-                $ref: '#/definitions/User'
-            type: array
+            properties:
+                data:
+                    items:
+                        $ref: '#/definitions/User'
+                    type: array
+                    x-go-name: Data
+                message:
+                    type: string
+                    x-go-name: Message
+                status:
+                    type: boolean
+                    x-go-name: Success
+            type: object
 schemes:
     - http
 securityDefinitions:

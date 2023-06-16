@@ -2,6 +2,7 @@ package doc
 
 import (
 	"github.com/fadilmuh22/restskuy/cmd/model"
+	"github.com/google/uuid"
 )
 
 // swagger:route GET /user user listUsers
@@ -13,7 +14,10 @@ import (
 // swagger:response usersResponse
 type UsersResponse struct {
 	// in:body
-	Body []model.User
+	Body struct {
+		model.BasicResponse
+		Data []model.User `json:"data"`
+	}
 }
 
 // swagger:route GET /user/{id} user getUser
@@ -24,9 +28,11 @@ type UsersResponse struct {
 //
 // swagger:response userResponse
 type UserResponse struct {
-	// The error message
 	// in: body
-	Body model.User
+	Body struct {
+		model.BasicResponse
+		Data model.User `json:"data"`
+	}
 }
 
 // swagger:route POST /user user createUser
@@ -51,9 +57,12 @@ type UserBody struct {
 type UserBodyParams struct {
 	// in:path
 	// required:true
-	ID int `json:"id"`
+	ID uuid.UUID `json:"id"`
 	// in:body
-	Body model.User
+	Body struct {
+		model.User
+		UUID uuid.UUID `json:"-"`
+	}
 }
 
 // swagger:route DELETE /user/{id} user deleteUser
@@ -66,5 +75,5 @@ type UserBodyParams struct {
 type UserParams struct {
 	// in:path
 	// required:true
-	ID int `json:"id"`
+	ID uuid.UUID `json:"id"`
 }

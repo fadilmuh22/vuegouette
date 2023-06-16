@@ -1,6 +1,9 @@
 package doc
 
-import "github.com/fadilmuh22/restskuy/cmd/model"
+import (
+	"github.com/fadilmuh22/restskuy/cmd/model"
+	"github.com/google/uuid"
+)
 
 // swagger:route GET /product product listProducts
 // List all products.
@@ -11,7 +14,10 @@ import "github.com/fadilmuh22/restskuy/cmd/model"
 // swagger:response productsResponse
 type ProductsResponse struct {
 	// in:body
-	Body []model.Product
+	Body struct {
+		model.BasicResponse
+		Data []model.Product `json:"data"`
+	}
 }
 
 // swagger:route GET /product/{id} product getProduct
@@ -23,7 +29,10 @@ type ProductsResponse struct {
 // swagger:response productResponse
 type ProductResponse struct {
 	// in: body
-	Body model.Product
+	Body struct {
+		model.BasicResponse
+		Data model.Product `json:"data"`
+	}
 }
 
 // swagger:route POST /product product createProduct
@@ -50,7 +59,10 @@ type ProductBodyParams struct {
 	// required:true
 	ID int `json:"id"`
 	// in:body
-	Body model.Product
+	Body struct {
+		model.Product
+		UUID uuid.UUID `json:"-"`
+	}
 }
 
 // swagger:route DELETE /product/{id} product deleteProduct

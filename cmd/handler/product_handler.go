@@ -1,33 +1,41 @@
 package handler
 
 import (
-	"database/sql"
 	"net/http"
 
 	"github.com/fadilmuh22/restskuy/cmd/model"
-	"github.com/fadilmuh22/restskuy/cmd/service"
+	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
+	"gorm.io/gorm"
 )
 
 type productHandler struct {
-	service service.ProductService
+	db *gorm.DB
 }
 
 // getProducts with query
 func (h productHandler) getProducts(c echo.Context) error {
-	products, err := h.service.GetAllProduct()
-	if err != nil {
-		return err
+	var products []model.Product
+
+	result := h.db.Find(&products)
+	if result.Error != nil {
+		return result.Error
 	}
 
 	return SendResponse(c, http.StatusOK, true, "Success get all product", products)
 }
 
 func (h productHandler) getProduct(c echo.Context) error {
-	id := c.Param("id")
-	product, err := h.service.GetProduct(id)
+	id, err := uuid.Parse(c.Param("id"))
 	if err != nil {
 		return err
+	}
+
+	product := model.Product{UUID: id}
+
+	result := h.db.First(&product)
+	if result.Error != nil {
+		return result.Error
 	}
 
 	return SendResponse(c, http.StatusOK, true, "Success get product", product)
@@ -37,32 +45,50 @@ func (h productHandler) createProduct(c echo.Context) error {
 	var product model.Product
 	c.Bind(&product)
 
-	product, err := h.service.CreateProduct(product)
-	if err != nil {
-		return err
+	result := h.db.Create(&product)
+	if result.Error != nil {
+		return result.Error
 	}
 
 	return SendResponse(c, http.StatusOK, true, "Success create product", product)
 }
 
 func (h productHandler) updateProduct(c echo.Context) error {
-	var product model.Product
-	c.Bind(&product)
-
-	id := c.Param("id")
-	product, err := h.service.UpdateProduct(id, product)
+	id, err := uuid.Parse(c.Param("id"))
 	if err != nil {
 		return err
+	}
+
+	product := model.Product{UUID: id}
+
+	// find product by id
+	result := h.db.First(&product)
+	if result.Error != nil {
+		return result.Error
+	}
+
+	c.Bind(&product)
+	product.UUID = id
+
+	result = h.db.Save(&product)
+	if result.Error != nil {
+		return result.Error
 	}
 
 	return SendResponse(c, http.StatusOK, true, "Success update product", product)
 }
 
 func (h productHandler) deleteProduct(c echo.Context) error {
-	id := c.Param("id")
-	err := h.service.DeleteProduct(id)
+	id, err := uuid.Parse(c.Param("id"))
 	if err != nil {
 		return err
+	}
+
+	product := model.Product{UUID: id}
+
+	result := h.db.Delete(&product)
+	if result.Error != nil {
+		return result.Error
 	}
 
 	return SendResponse(c, http.StatusOK, true, "Success delete product", nil)
@@ -79,10 +105,8 @@ func (h productHandler) HandleRoutes(g *echo.Group) {
 	}
 }
 
-func NewProductHandler(con *sql.DB) Handler {
+func NewProductHandler(db *gorm.DB) Handler {
 	return productHandler{
-		service: service.ProductService{
-			Con: con,
-		},
+		db: db,
 	}
 }

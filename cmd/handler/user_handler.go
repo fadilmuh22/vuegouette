@@ -1,22 +1,25 @@
 package handler
 
 import (
-	"database/sql"
 	"net/http"
 
 	"github.com/fadilmuh22/restskuy/cmd/model"
-	"github.com/fadilmuh22/restskuy/cmd/service"
+	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
+	"golang.org/x/crypto/bcrypt"
+	"gorm.io/gorm"
 )
 
 type userHandler struct {
-	service service.UserService
+	db *gorm.DB
 }
 
 func (h userHandler) getAllUser(c echo.Context) error {
-	users, err := h.service.GetAllUser()
-	if err != nil {
-		return err
+	var users []model.User
+
+	result := h.db.Find(&users)
+	if result.Error != nil {
+		return result.Error
 	}
 
 	return SendResponse(c, http.StatusOK, true, "Success get all user", users)
@@ -24,12 +27,17 @@ func (h userHandler) getAllUser(c echo.Context) error {
 
 // get user by id
 func (h userHandler) getUser(c echo.Context) error {
-	id := c.Param("id")
-	user, err := h.service.GetUser(id)
+	id, err := uuid.Parse(c.Param("id"))
 	if err != nil {
 		return err
 	}
 
+	user := model.User{UUID: id}
+
+	result := h.db.First(&user)
+	if result.Error != nil {
+		return result.Error
+	}
 
 	return SendResponse(c, http.StatusOK, true, "Success get user", user)
 }
@@ -38,32 +46,54 @@ func (h userHandler) createUser(c echo.Context) error {
 	var user model.User
 	c.Bind(&user)
 
-	user, err := h.service.CreateUser(user)
-	if err != nil {
-		return err
+	result := h.db.Create(&user)
+	if result.Error != nil {
+		return result.Error
 	}
 
 	return SendResponse(c, http.StatusOK, true, "Success create user", user)
 }
 
 func (h userHandler) updateUser(c echo.Context) error {
-	var user model.User
-	c.Bind(&user)
-
-	id := c.Param("id")
-	user, err := h.service.UpdateUser(id, user)
+	id, err := uuid.Parse(c.Param("id"))
 	if err != nil {
 		return err
+	}
+
+	user := model.User{UUID: id}
+
+	result := h.db.First(&user)
+	if result.Error != nil {
+		return result.Error
+	}
+
+	c.Bind(&user)
+	user.UUID = id
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
+	if err != nil {
+		return err
+	}
+	user.Password = string(hashedPassword)
+
+	result = h.db.Save(&user)
+	if result.Error != nil {
+		return result.Error
 	}
 
 	return SendResponse(c, http.StatusOK, true, "Success update user", user)
 }
 
 func (h userHandler) deleteUser(c echo.Context) error {
-	id := c.Param("id")
-	err := h.service.DeleteUser(id)
+	id, err := uuid.Parse(c.Param("id"))
 	if err != nil {
 		return err
+	}
+
+	user := model.User{UUID: id}
+
+	result := h.db.Delete(&user)
+	if result.Error != nil {
+		return result.Error
 	}
 
 	return SendResponse(c, http.StatusOK, true, "Success delete user", nil)
@@ -80,10 +110,8 @@ func (h userHandler) HandleRoutes(g *echo.Group) {
 	}
 }
 
-func NewUserHandler(con *sql.DB) Handler {
+func NewUserHandler(db *gorm.DB) Handler {
 	return userHandler{
-		service: service.UserService{
-			Con: con,
-		},
+		db: db,
 	}
 }
