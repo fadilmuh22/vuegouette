@@ -19,11 +19,7 @@ func (h userHandler) getAllUser(c echo.Context) error {
 		return err
 	}
 
-	return c.JSON(http.StatusOK, &model.BasicResponse{
-		Success: true,
-		Message: "Success get all user",
-		Data:    users,
-	})
+	return SendResponse(c, http.StatusOK, true, "Success get all user", users)
 }
 
 // get user by id
@@ -34,11 +30,8 @@ func (h userHandler) getUser(c echo.Context) error {
 		return err
 	}
 
-	return c.JSON(http.StatusOK, &model.BasicResponse{
-		Success: true,
-		Message: "Success get user",
-		Data:    user,
-	})
+
+	return SendResponse(c, http.StatusOK, true, "Success get user", user)
 }
 
 func (h userHandler) createUser(c echo.Context) error {
@@ -50,11 +43,7 @@ func (h userHandler) createUser(c echo.Context) error {
 		return err
 	}
 
-	return c.JSON(http.StatusOK, &model.BasicResponse{
-		Success: true,
-		Message: "Success create user",
-		Data:    user,
-	})
+	return SendResponse(c, http.StatusOK, true, "Success create user", user)
 }
 
 func (h userHandler) updateUser(c echo.Context) error {
@@ -67,11 +56,7 @@ func (h userHandler) updateUser(c echo.Context) error {
 		return err
 	}
 
-	return c.JSON(http.StatusOK, &model.BasicResponse{
-		Success: true,
-		Message: "Success update user",
-		Data:    user,
-	})
+	return SendResponse(c, http.StatusOK, true, "Success update user", user)
 }
 
 func (h userHandler) deleteUser(c echo.Context) error {
@@ -81,11 +66,7 @@ func (h userHandler) deleteUser(c echo.Context) error {
 		return err
 	}
 
-	return c.JSON(http.StatusOK, &model.BasicResponse{
-		Success: true,
-		Message: "Success delete user",
-		Data:    nil,
-	})
+	return SendResponse(c, http.StatusOK, true, "Success delete user", nil)
 }
 
 func (h userHandler) HandleRoutes(g *echo.Group) {

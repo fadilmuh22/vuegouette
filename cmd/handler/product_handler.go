@@ -20,11 +20,7 @@ func (h productHandler) getProducts(c echo.Context) error {
 		return err
 	}
 
-	return c.JSON(http.StatusOK, &model.BasicResponse{
-		Success: true,
-		Message: "Success get all product",
-		Data:    products,
-	})
+	return SendResponse(c, http.StatusOK, true, "Success get all product", products)
 }
 
 func (h productHandler) getProduct(c echo.Context) error {
@@ -34,11 +30,7 @@ func (h productHandler) getProduct(c echo.Context) error {
 		return err
 	}
 
-	return c.JSON(http.StatusOK, &model.BasicResponse{
-		Success: true,
-		Message: "Success get product",
-		Data:    product,
-	})
+	return SendResponse(c, http.StatusOK, true, "Success get product", product)
 }
 
 func (h productHandler) createProduct(c echo.Context) error {
@@ -50,11 +42,7 @@ func (h productHandler) createProduct(c echo.Context) error {
 		return err
 	}
 
-	return c.JSON(http.StatusOK, &model.BasicResponse{
-		Success: true,
-		Message: "Success create product",
-		Data:    product,
-	})
+	return SendResponse(c, http.StatusOK, true, "Success create product", product)
 }
 
 func (h productHandler) updateProduct(c echo.Context) error {
@@ -67,11 +55,7 @@ func (h productHandler) updateProduct(c echo.Context) error {
 		return err
 	}
 
-	return c.JSON(http.StatusOK, &model.BasicResponse{
-		Success: true,
-		Message: "Success update product",
-		Data:    product,
-	})
+	return SendResponse(c, http.StatusOK, true, "Success update product", product)
 }
 
 func (h productHandler) deleteProduct(c echo.Context) error {
@@ -81,11 +65,7 @@ func (h productHandler) deleteProduct(c echo.Context) error {
 		return err
 	}
 
-	return c.JSON(http.StatusOK, &model.BasicResponse{
-		Success: true,
-		Message: "Success delete product",
-		Data:    nil,
-	})
+	return SendResponse(c, http.StatusOK, true, "Success delete product", nil)
 }
 
 func (h productHandler) HandleRoutes(g *echo.Group) {

@@ -2,12 +2,12 @@ package cmd
 
 import (
 	"context"
-	"database/sql"
 	"net/http"
 	"os"
 	"os/signal"
 	"time"
 
+	"github.com/fadilmuh22/restskuy/cmd/db"
 	"github.com/fadilmuh22/restskuy/cmd/handler"
 	"github.com/fadilmuh22/restskuy/cmd/middleware"
 	"github.com/fadilmuh22/restskuy/cmd/util"
@@ -36,7 +36,7 @@ func runServer(e *echo.Echo) {
 }
 
 // go server using echo
-func StartServer(con *sql.DB) {
+func StartServer() {
 	// Echo instance
 	e := echo.New()
 
@@ -54,6 +54,8 @@ func StartServer(con *sql.DB) {
 		e.Logger.Fatal(err)
 	}
 	e.Validator = &cv
+
+	con := db.Connect()
 
 	// Routes
 	api := e.Group("api")
