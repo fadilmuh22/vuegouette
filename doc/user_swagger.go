@@ -44,7 +44,10 @@ type UserResponse struct {
 // swagger:parameters createUser
 type UserBody struct {
 	// in:body
-	Body model.User
+	Body struct {
+		model.User
+		UUID uuid.UUID `json:"-"`
+	}
 }
 
 // swagger:route PUT /user/{id} user updateUser

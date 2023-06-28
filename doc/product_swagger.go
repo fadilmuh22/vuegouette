@@ -44,7 +44,10 @@ type ProductResponse struct {
 // swagger:parameters createProduct
 type ProductBody struct {
 	// in:body
-	Body model.Product
+	Body struct {
+		model.Product
+		UUID uuid.UUID `json:"-"`
+	}
 }
 
 // swagger:route PUT /product/{id} product updateProduct

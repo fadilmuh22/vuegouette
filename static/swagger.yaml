@@ -112,7 +112,22 @@ paths:
                 - in: body
                   name: Body
                   schema:
-                    $ref: '#/definitions/Product'
+                    properties:
+                        description:
+                            type: string
+                            x-go-name: Description
+                        name:
+                            type: string
+                            x-go-name: Name
+                        price:
+                            format: double
+                            type: number
+                            x-go-name: Price
+                        stock:
+                            format: int64
+                            type: integer
+                            x-go-name: Stock
+                    type: object
             responses:
                 "200":
                     $ref: '#/responses/productResponse'
@@ -199,7 +214,17 @@ paths:
                 - in: body
                   name: Body
                   schema:
-                    $ref: '#/definitions/User'
+                    properties:
+                        email:
+                            type: string
+                            x-go-name: Email
+                        name:
+                            type: string
+                            x-go-name: Name
+                        password:
+                            type: string
+                            x-go-name: Password
+                    type: object
             responses:
                 "200":
                     $ref: '#/responses/userResponse'
