@@ -1,11 +1,11 @@
-// Package classification reskuy.
+// Package classification restskuy.
 //
-// Documentation of our reskuy API.
+// Documentation of our restskuy API.
 //
-//	 Schemes: http
+//	 Schemes: https
 //	 BasePath: /api
 //	 Version: 1.0.0
-//	 Host: 0.0.0.0:1323
+//	 Host: restskuy.rascent.tech
 //
 //	 Consumes:
 //	 - application/json

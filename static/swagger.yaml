@@ -41,10 +41,10 @@ definitions:
                 x-go-name: UUID
         type: object
         x-go-package: github.com/fadilmuh22/restskuy/cmd/model
-host: 0.0.0.0:1323
+host: restskuy.rascent.tech
 info:
-    description: Documentation of our reskuy API.
-    title: reskuy.
+    description: Documentation of our restskuy API.
+    title: restskuy.
     version: 1.0.0
 paths:
     /auth/login:
@@ -273,7 +273,7 @@ responses:
         description: ""
         schema:
             properties:
-                Data:
+                data:
                     properties:
                         token:
                             description: The token
@@ -282,7 +282,6 @@ responses:
                         user:
                             $ref: '#/definitions/User'
                     type: object
-                data:
                     x-go-name: Data
                 message:
                     type: string
@@ -352,7 +351,7 @@ responses:
                     x-go-name: Success
             type: object
 schemes:
-    - http
+    - https
 securityDefinitions:
     basic:
         type: basic

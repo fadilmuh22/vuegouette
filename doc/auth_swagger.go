@@ -49,6 +49,6 @@ type LoginRegisterResponse struct {
 			Token string `json:"token"`
 			// The user
 			User model.User `json:"user"`
-		}
+		} `json:"data"`
 	}
 }
