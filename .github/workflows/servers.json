@@ -1,14 +1,14 @@
 [
   {
     "name": "server-0",
-    "ip": "165.22.109.114",
+    "host": "128.199.139.191",
     "username": "root",
     "port": "22",
     "path": "/var/www/restskuy"
   },
   {
     "name": "server-1",
-    "ip": "209.97.167.137",
+    "host": "128.199.141.194",
     "username": "root",
     "port": "22",
     "path": "/var/www/restskuy"
