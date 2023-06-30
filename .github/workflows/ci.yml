@@ -3,15 +3,19 @@ name: Build & Deploy
 on:
   push:
     branches: [main]
+  pull_request:
+    branches: [main]
 
 jobs:
-  build:
+  build-artifact:
     runs-on: ubuntu-latest
+    outputs:
+      servers: ${{ steps.export-deployment-matrix.outputs.servers }}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Set up Go
-        uses: actions/setup-go@v2
+        uses: actions/setup-go@v4
         with:
           go-version: 1.19
 
@@ -30,9 +34,22 @@ jobs:
           name: app-build
           path: ${{ github.sha }}.tar.gz
 
+      - name: Export deployment matrix
+        id: export-deployment-matrix
+        run: |
+          delimiter="$(openssl rand -hex 8)"
+          JSON="$(cat ./.github/workflows/servers.json)"
+          echo "servers<<${delimiter}" >> "${GITHUB_OUTPUT}"
+          echo "$JSON" >> "${GITHUB_OUTPUT}"
+          echo "${delimiter}" >> "${GITHUB_OUTPUT}"
+
   deploy:
+    name: "Deploy to: ${{ matrix.server.name }}"
     runs-on: ubuntu-latest
-    needs: build
+    needs: build-artifact
+    strategy:
+      matrix:
+        server: ${{ fromJson(needs.build-artifact.outputs.servers) }}
     steps:
       - uses: actions/download-artifact@v3
         with:
@@ -40,39 +57,39 @@ jobs:
       - name: Upload
         uses: appleboy/scp-action@master
         with:
-          host: ${{ secrets.HOST }}
-          username: ${{ secrets.USERNAME }}
+          host: ${{ matrix.server.host }}
+          username: ${{ matrix.server.username }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          port: ${{ secrets.PORT }}
+          port: ${{ matrix.server.port }}
           source: ${{ github.sha }}.tar.gz
-          target: ${{ secrets.DIR }}/artifacts
+          target: ${{ matrix.server.path }}/artifacts
       - name: Extract archive and create directories
         uses: appleboy/ssh-action@master
         env:
           GITHUB_SHA: ${{ github.sha }}
         with:
-          host: ${{ secrets.HOST }}
-          username: ${{ secrets.USERNAME }}
+          host: ${{ matrix.server.host }}
+          username: ${{ matrix.server.username }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          port: ${{ secrets.PORT }}
+          port: ${{ matrix.server.port }}
           envs: GITHUB_SHA
           script: |
-            mkdir -p "${{ secrets.DIR }}/releases/${GITHUB_SHA}"
-            tar xzf ${{ secrets.DIR }}/artifacts/${GITHUB_SHA}.tar.gz -C "${{ secrets.DIR }}/releases/${GITHUB_SHA}"
+            mkdir -p "${{ matrix.server.path }}/releases/${GITHUB_SHA}"
+            tar xzf ${{ matrix.server.path }}/artifacts/${GITHUB_SHA}.tar.gz -C "${{ matrix.server.path }}/releases/${GITHUB_SHA}"
 
       - name: Deploy
         uses: appleboy/ssh-action@master
         env:
           GITHUB_SHA: ${{ github.sha }}
-          BASE_PATH: ${{ secrets.DIR }}
-          RELEASE_PATH: ${{ secrets.DIR }}/releases/${{ github.sha }}
-          ACTIVE_RELEASE_PATH: ${{ secrets.DIR }}/current
+          BASE_PATH: ${{ matrix.server.path }}
+          RELEASE_PATH: ${{ matrix.server.path }}/releases/${{ github.sha }}
+          ACTIVE_RELEASE_PATH: ${{ matrix.server.path }}/current
           DOT_ENV: ${{ secrets.DOT_ENV }}
         with:
-          host: ${{ secrets.HOST }}
-          username: ${{ secrets.USERNAME }}
+          host: ${{ matrix.server.host }}
+          username: ${{ matrix.server.username }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          port: ${{ secrets.PORT }}
+          port: ${{ matrix.server.port }}
           envs: GITHUB_SHA,BASE_PATH,RELEASE_PATH,ACTIVE_RELEASE_PATH,DOT_ENV
           script: |
             echo "** linking new release **"
@@ -83,7 +100,7 @@ jobs:
             echo "** restarting service tof apply new version **"
             sudo service ${{ secrets.SERVICE }} stop
             echo "** service stopped **"
-            chmod +x ${{ secrets.DIR }}/current/${{ secrets.SERVICE }}
+            chmod +x ${{ matrix.server.path }}/current/${{ secrets.SERVICE }}
             sudo service ${{ secrets.SERVICE }} start
             echo "** service started **"
             ps -ef |grep ${{ secrets.SERVICE }}

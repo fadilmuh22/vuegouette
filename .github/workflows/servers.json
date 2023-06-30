@@ -1,0 +1,9 @@
+[
+  {
+    "name": "server-0",
+    "ip": "165.22.109.114",
+    "username": "root",
+    "port": "22",
+    "path": "/var/www/restskuy"
+  }
+]
