@@ -43,7 +43,7 @@ jobs:
           echo "$JSON" >> "${GITHUB_OUTPUT}"
           echo "${delimiter}" >> "${GITHUB_OUTPUT}"
 
-  deploy:
+  deploy-matrix:
     name: "Deploy to: ${{ matrix.server.name }}"
     runs-on: ubuntu-latest
     needs: build-artifact
