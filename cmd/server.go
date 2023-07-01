@@ -11,6 +11,7 @@ import (
 	"github.com/fadilmuh22/restskuy/cmd/handler"
 	"github.com/fadilmuh22/restskuy/cmd/middleware"
 	"github.com/fadilmuh22/restskuy/cmd/util"
+	"github.com/spf13/viper"
 
 	"github.com/labstack/echo/v4"
 	echomiddleware "github.com/labstack/echo/v4/middleware"
@@ -18,7 +19,15 @@ import (
 
 func runServer(e *echo.Echo) {
 	go func() {
-		if err := e.Start(":1323"); err != nil && err != http.ErrServerClosed {
+		var err error
+
+		if viper.GetString("ENV") == "production" {
+			err = e.StartAutoTLS(":1323")
+		} else {
+			err = e.Start(":1323")
+		}
+
+		if err != nil && err != http.ErrServerClosed {
 			e.Logger.Fatal("shutting down the server")
 		}
 	}()
@@ -44,6 +53,12 @@ func StartServer() {
 	e.Use(echomiddleware.Logger())
 	e.Use(echomiddleware.Recover())
 	e.Use(echomiddleware.CORS())
+
+	if viper.GetString("ENV") == "production" {
+		e.Use(echomiddleware.Secure())
+		e.Use(echomiddleware.HTTPSRedirect())
+		e.Use(echomiddleware.HTTPSWWWRedirect())
+	}
 
 	e.Use(middleware.TransformErrorResponse)
 
