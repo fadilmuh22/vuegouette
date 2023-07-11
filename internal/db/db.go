@@ -3,7 +3,7 @@ package db
 import (
 	"log"
 
-	"github.com/fadilmuh22/restskuy/cmd/model"
+	"github.com/fadilmuh22/restskuy/internal/model"
 	"github.com/spf13/viper"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"

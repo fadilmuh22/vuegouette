@@ -1,4 +1,4 @@
-package cmd
+package internal
 
 import (
 	"context"
@@ -7,14 +7,14 @@ import (
 	"os/signal"
 	"time"
 
-	"github.com/fadilmuh22/restskuy/cmd/db"
-	"github.com/fadilmuh22/restskuy/cmd/handler"
-	"github.com/fadilmuh22/restskuy/cmd/middleware"
-	"github.com/fadilmuh22/restskuy/cmd/util"
-	"github.com/spf13/viper"
-
 	"github.com/labstack/echo/v4"
 	echomiddleware "github.com/labstack/echo/v4/middleware"
+	"github.com/spf13/viper"
+
+	"github.com/fadilmuh22/restskuy/internal/db"
+	"github.com/fadilmuh22/restskuy/internal/handler"
+	"github.com/fadilmuh22/restskuy/internal/middleware"
+	"github.com/fadilmuh22/restskuy/internal/util"
 )
 
 func runServer(e *echo.Echo) {
@@ -70,14 +70,10 @@ func StartServer() {
 	}
 	e.Validator = &cv
 
-	con := db.Connect()
+	db := db.Connect()
 
 	// Routes
-	api := e.Group("api")
-	handler.NewStaticHandler().HandleRoutes(api)
-	handler.NewUserHandler(con).HandleRoutes(api)
-	handler.NewProductHandler(con).HandleRoutes(api)
-	handler.NewAuthHandler(con).HandleRoutes(api)
+	handler.NewApiHandlers(e, db)
 
 	// Start server
 	runServer(e)

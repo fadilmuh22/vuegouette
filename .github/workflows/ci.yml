@@ -25,7 +25,7 @@ jobs:
 
       - name: Build it
         run: |
-          GOOS=linux GOARCH=amd64 go build -o ${{ env.SERVICE }} ./main.go
+          GOOS=linux GOARCH=amd64 go build -o ${{ env.SERVICE }} ./cmd/main.go
 
       - name: Create deployment artifact
         env:

@@ -4,10 +4,11 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/fadilmuh22/restskuy/cmd/model"
 	"github.com/golang-jwt/jwt"
 	"github.com/labstack/echo/v4"
 	"github.com/spf13/viper"
+
+	"github.com/fadilmuh22/restskuy/internal/model"
 )
 
 // 30 days
@@ -21,8 +22,8 @@ func GetJWTSecret() string {
 // We add jwt.StandardClaims as an embedded type, to provide fields like expiry time.
 type Claims struct {
 	jwt.StandardClaims
-	Email string	`json:"email"`
-	Name  string	`json:"name"`
+	Email string `json:"email"`
+	Name  string `json:"name"`
 }
 
 // GenerateTokensAndSetCookies generates jwt token and saves it to the http-only cookie.
@@ -67,7 +68,6 @@ func generateToken(user *model.User, expirationTime time.Time, secret []byte) (s
 
 // JWTErrorChecker will be executed when user try to access a protected path.
 func JWTErrorChecker(err error, c echo.Context) error {
-    // Redirects to the signIn form.
+	// Redirects to the signIn form.
 	return c.Redirect(http.StatusMovedPermanently, c.Echo().Reverse("userSignInForm"))
 }
-

@@ -1,10 +1,11 @@
 package handler
 
 import (
-	"github.com/fadilmuh22/restskuy/cmd/model"
-	"github.com/fadilmuh22/restskuy/cmd/service"
 	"github.com/labstack/echo/v4"
 	"gorm.io/gorm"
+
+	"github.com/fadilmuh22/restskuy/internal/model"
+	"github.com/fadilmuh22/restskuy/internal/service"
 )
 
 type authHandler struct {
@@ -27,7 +28,7 @@ func (h authHandler) register(c echo.Context) error {
 
 	user, err := h.service.Register(user)
 	if err != nil {
-		return err
+		return echo.NewHTTPError(401, err.Error())
 	}
 
 	return SendResponse(c, 200, true, "Success register", user)
@@ -39,7 +40,7 @@ func (h authHandler) login(c echo.Context) error {
 
 	user, err := h.service.Login(loginRequestBody.Email, loginRequestBody.Password)
 	if err != nil {
-		return err
+		return echo.NewHTTPError(401, err.Error())
 	}
 
 	// generate token

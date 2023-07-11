@@ -1,8 +1,9 @@
 package doc
 
 import (
-	"github.com/fadilmuh22/restskuy/cmd/model"
 	"github.com/google/uuid"
+
+	"github.com/fadilmuh22/restskuy/internal/model"
 )
 
 // swagger:route GET /user user listUsers
