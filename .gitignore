@@ -9,4 +9,5 @@ _dist/
 bin/
 vendor/
 .env
-temp
+tmp/
+swagger.yaml

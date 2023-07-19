@@ -1,10 +1,10 @@
-package service
+package util
 
 import (
 	"net/http"
 	"time"
 
-	"github.com/golang-jwt/jwt"
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/labstack/echo/v4"
 	"github.com/spf13/viper"
 
@@ -21,14 +21,17 @@ func GetJWTSecret() string {
 // Create a struct that will be encoded to a JWT.
 // We add jwt.StandardClaims as an embedded type, to provide fields like expiry time.
 type Claims struct {
-	jwt.StandardClaims
 	Email string `json:"email"`
 	Name  string `json:"name"`
+	jwt.RegisteredClaims
 }
 
-// GenerateTokensAndSetCookies generates jwt token and saves it to the http-only cookie.
-func GenerateTokensAndSetCookies(user *model.User, c echo.Context) (string, error) {
-	accessToken, _, err := generateAccessToken(user)
+// GenerateTokens generates jwt token and saves it to the http-only cookie.
+func GenerateAccessToken(user *model.User, c echo.Context) (string, error) {
+	expirationTime := time.Now().Add(LOGIN_EXPIRATION_DURATION)
+
+	accessToken, _, err := generateToken(user, expirationTime, []byte(GetJWTSecret()))
+
 	if err != nil {
 		return accessToken, err
 	}
@@ -36,21 +39,14 @@ func GenerateTokensAndSetCookies(user *model.User, c echo.Context) (string, erro
 	return accessToken, nil
 }
 
-func generateAccessToken(user *model.User) (string, time.Time, error) {
-	// Declare the expiration time of the token (1h).
-	expirationTime := time.Now().Add(LOGIN_EXPIRATION_DURATION)
-
-	return generateToken(user, expirationTime, []byte(GetJWTSecret()))
-}
-
 // Pay attention to this function. It holds the main JWT token generation logic.
 func generateToken(user *model.User, expirationTime time.Time, secret []byte) (string, time.Time, error) {
 	// Create the JWT claims, which includes the username and expiry time.
 	claims := &Claims{
-		Name: user.Name,
-		StandardClaims: jwt.StandardClaims{
-			// In JWT, the expiry time is expressed as unix milliseconds.
-			ExpiresAt: expirationTime.Unix(),
+		Name:  user.Name,
+		Email: user.Email,
+		RegisteredClaims: jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour * 72)),
 		},
 	}
 

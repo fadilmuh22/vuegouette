@@ -63,12 +63,11 @@ func StartServer() {
 	e.Use(middleware.TransformErrorResponse)
 
 	// Validator
-	cv := util.CustomValidator{}
-	err := cv.Init()
+	var err error
+	e.Validator, err = util.NewCustomValidator()
 	if err != nil {
 		e.Logger.Fatal(err)
 	}
-	e.Validator = &cv
 
 	db := db.Connect()
 

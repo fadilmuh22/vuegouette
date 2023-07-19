@@ -2,10 +2,9 @@
 //
 // Documentation of our restskuy API.
 //
-//	 Schemes: https
+//	 Schemes: http
 //	 BasePath: /api
 //	 Version: 1.0.0
-//	 Host: restskuy.rascent.tech
 //
 //	 Consumes:
 //	 - application/json
@@ -14,11 +13,13 @@
 //	 - application/json
 //
 //	 Security:
-//	 - basic
+//   - api_key:
 //
-//	SecurityDefinitions:
-//	basic:
-//	  type: basic
+//   SecurityDefinitions:
+//   api_key:
+//       type: apiKey
+//       name: Authorization
+//       in: header
 //
 // swagger:meta
 package doc

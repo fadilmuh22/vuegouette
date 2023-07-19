@@ -12,6 +12,15 @@ type CustomValidator struct {
 	Validator *validator.Validate
 }
 
+func NewCustomValidator() (*CustomValidator, error) {
+	cv := &CustomValidator{}
+	err := cv.Init()
+	if err != nil {
+		return nil, err
+	}
+	return cv, nil
+}
+
 func (cv *CustomValidator) Init() error {
 	cv.Validator = validator.New()
 	err := cv.Validator.RegisterValidation("uuid", isValidateUUID)

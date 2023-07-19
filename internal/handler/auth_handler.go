@@ -6,10 +6,17 @@ import (
 
 	"github.com/fadilmuh22/restskuy/internal/model"
 	"github.com/fadilmuh22/restskuy/internal/service"
+	"github.com/fadilmuh22/restskuy/internal/util"
 )
 
 type authHandler struct {
 	service service.AuthService
+}
+
+func NewAuthHandler(db *gorm.DB) Handler {
+	return authHandler{
+		service: service.NewAuthService(db),
+	}
 }
 
 type LoginRequestBody struct {
@@ -31,7 +38,7 @@ func (h authHandler) register(c echo.Context) error {
 		return echo.NewHTTPError(401, err.Error())
 	}
 
-	return SendResponse(c, 200, true, "Success register", user)
+	return util.SendResponse(c, 200, true, "Success register", user)
 }
 
 func (h authHandler) login(c echo.Context) error {
@@ -44,12 +51,12 @@ func (h authHandler) login(c echo.Context) error {
 	}
 
 	// generate token
-	accessToken, err := service.GenerateTokensAndSetCookies(&user, c)
+	accessToken, err := util.GenerateAccessToken(&user, c)
 	if err != nil {
 		return err
 	}
 
-	return SendResponse(c, 200, true, "Success login", LoginResponseData{
+	return util.SendResponse(c, 200, true, "Success login", LoginResponseData{
 		Token: accessToken,
 		User:  user,
 	})
@@ -60,11 +67,5 @@ func (h authHandler) HandleRoutes(g *echo.Group) {
 	{
 		auth.POST("/login", h.login)
 		auth.POST("/register", h.register)
-	}
-}
-
-func NewAuthHandler(db *gorm.DB) Handler {
-	return authHandler{
-		service: service.NewAuthService(db),
 	}
 }

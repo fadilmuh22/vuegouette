@@ -7,8 +7,10 @@ import (
 	"github.com/labstack/echo/v4"
 	"gorm.io/gorm"
 
+	"github.com/fadilmuh22/restskuy/internal/middleware"
 	"github.com/fadilmuh22/restskuy/internal/model"
 	"github.com/fadilmuh22/restskuy/internal/service"
+	"github.com/fadilmuh22/restskuy/internal/util"
 )
 
 type productHandler struct {
@@ -29,7 +31,7 @@ func (h productHandler) getProducts(c echo.Context) error {
 		return err
 	}
 
-	return SendResponse(c, http.StatusOK, true, "Success get all product", products)
+	return util.SendResponse(c, http.StatusOK, true, "Success get all product", products)
 }
 
 func (h productHandler) getProduct(c echo.Context) error {
@@ -43,7 +45,7 @@ func (h productHandler) getProduct(c echo.Context) error {
 		return err
 	}
 
-	return SendResponse(c, http.StatusOK, true, "Success get product", product)
+	return util.SendResponse(c, http.StatusOK, true, "Success get product", product)
 }
 
 func (h productHandler) createProduct(c echo.Context) error {
@@ -55,7 +57,7 @@ func (h productHandler) createProduct(c echo.Context) error {
 		return err
 	}
 
-	return SendResponse(c, http.StatusOK, true, "Success create product", product)
+	return util.SendResponse(c, http.StatusOK, true, "Success create product", product)
 }
 
 func (h productHandler) updateProduct(c echo.Context) error {
@@ -77,7 +79,7 @@ func (h productHandler) updateProduct(c echo.Context) error {
 		return err
 	}
 
-	return SendResponse(c, http.StatusOK, true, "Success update product", product)
+	return util.SendResponse(c, http.StatusOK, true, "Success update product", product)
 }
 
 func (h productHandler) deleteProduct(c echo.Context) error {
@@ -91,16 +93,16 @@ func (h productHandler) deleteProduct(c echo.Context) error {
 		return err
 	}
 
-	return SendResponse(c, http.StatusOK, true, "Success delete product", product)
+	return util.SendResponse(c, http.StatusOK, true, "Success delete product", product)
 }
 
 func (h productHandler) HandleRoutes(g *echo.Group) {
 	product := g.Group("/product")
 	{
 		product.GET("", h.getProducts)
-		product.POST("", h.createProduct)
-		product.GET("/:id", h.getProduct)
-		product.PUT("/:id", h.updateProduct)
-		product.DELETE("/:id", h.deleteProduct)
+		product.POST("", h.createProduct, middleware.Auth())
+		product.GET("/:id", h.getProduct, middleware.Auth())
+		product.PUT("/:id", h.updateProduct, middleware.Auth())
+		product.DELETE("/:id", h.deleteProduct, middleware.Auth())
 	}
 }

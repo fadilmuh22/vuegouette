@@ -7,6 +7,7 @@ import (
 	"github.com/labstack/echo/v4"
 	"gorm.io/gorm"
 
+	"github.com/fadilmuh22/restskuy/internal/middleware"
 	"github.com/fadilmuh22/restskuy/internal/model"
 	"github.com/fadilmuh22/restskuy/internal/service"
 	"github.com/fadilmuh22/restskuy/internal/util"
@@ -30,7 +31,7 @@ func (h userHandler) getAllUser(c echo.Context) error {
 		return err
 	}
 
-	return SendResponse(c, http.StatusOK, true, "Success get all user", users)
+	return util.SendResponse(c, http.StatusOK, true, "Success get all user", users)
 }
 
 // get user by id
@@ -45,7 +46,7 @@ func (h userHandler) getUser(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusNotFound, "User not found")
 	}
 
-	return SendResponse(c, http.StatusOK, true, "Success get user", user)
+	return util.SendResponse(c, http.StatusOK, true, "Success get user", user)
 }
 
 func (h userHandler) createUser(c echo.Context) error {
@@ -57,7 +58,7 @@ func (h userHandler) createUser(c echo.Context) error {
 		return err
 	}
 
-	return SendResponse(c, http.StatusOK, true, "Success create user", user)
+	return util.SendResponse(c, http.StatusOK, true, "Success create user", user)
 }
 
 func (h userHandler) updateUser(c echo.Context) error {
@@ -83,7 +84,7 @@ func (h userHandler) updateUser(c echo.Context) error {
 		return err
 	}
 
-	return SendResponse(c, http.StatusOK, true, "Success update user", user)
+	return util.SendResponse(c, http.StatusOK, true, "Success update user", user)
 }
 
 func (h userHandler) deleteUser(c echo.Context) error {
@@ -97,16 +98,16 @@ func (h userHandler) deleteUser(c echo.Context) error {
 		return err
 	}
 
-	return SendResponse(c, http.StatusOK, true, "Success delete user", user)
+	return util.SendResponse(c, http.StatusOK, true, "Success delete user", user)
 }
 
 func (h userHandler) HandleRoutes(g *echo.Group) {
 	user := g.Group("/user")
 	{
 		user.GET("", h.getAllUser)
-		user.GET("/:id", h.getUser)
-		user.POST("", h.createUser)
-		user.PUT("/:id", h.updateUser)
-		user.DELETE("/:id", h.deleteUser)
+		user.GET("/:id", h.getUser, middleware.Auth())
+		user.POST("", h.createUser, middleware.Auth())
+		user.PUT("/:id", h.updateUser, middleware.Auth())
+		user.DELETE("/:id", h.deleteUser, middleware.Auth())
 	}
 }
