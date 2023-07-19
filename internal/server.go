@@ -28,7 +28,7 @@ func runServer(e *echo.Echo) {
 		}
 
 		if err != nil && err != http.ErrServerClosed {
-			e.Logger.Fatal("shutting down the server")
+			e.Logger.Fatal("shutting down the server, ", err)
 		}
 	}()
 
@@ -42,6 +42,7 @@ func runServer(e *echo.Echo) {
 	if err := e.Shutdown(ctx); err != nil {
 		e.Logger.Fatal(err)
 	}
+
 }
 
 // go server using echo
@@ -60,7 +61,10 @@ func StartServer() {
 		e.Use(echomiddleware.HTTPSWWWRedirect())
 	}
 
+	db := db.Connect()
+
 	e.Use(middleware.TransformErrorResponse)
+	e.Use(middleware.DBMiddleware(db))
 
 	// Validator
 	var err error
@@ -68,8 +72,6 @@ func StartServer() {
 	if err != nil {
 		e.Logger.Fatal(err)
 	}
-
-	db := db.Connect()
 
 	// Routes
 	handler.NewApiHandlers(e, db)

@@ -1,18 +1,20 @@
 package model
 
 import (
-	"github.com/google/uuid"
+	uuid "github.com/satori/go.uuid"
 	"gorm.io/gorm"
 )
 
 type User struct {
-	UUID     uuid.UUID `json:"uuid" gorm:"type:char(36);primaryKey"`
+	ID       uuid.UUID `gorm:"type:char(36);primaryKey"`
 	Name     string    `json:"name"`
 	Email    string    `json:"email"`
 	Password string    `json:"password"`
+	IsAdmin  bool      `json:"is_admin" gorm:"default:false"`
+	Products []Product `json:"products"`
 }
 
 func (u *User) BeforeCreate(tx *gorm.DB) (err error) {
-	u.UUID = uuid.New()
+	u.ID = uuid.NewV4()
 	return
 }

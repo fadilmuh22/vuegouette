@@ -3,8 +3,8 @@ package handler
 import (
 	"net/http"
 
-	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
+	uuid "github.com/satori/go.uuid"
 	"gorm.io/gorm"
 
 	"github.com/fadilmuh22/restskuy/internal/middleware"
@@ -35,7 +35,7 @@ func (h productHandler) getProducts(c echo.Context) error {
 }
 
 func (h productHandler) getProduct(c echo.Context) error {
-	id, err := uuid.Parse(c.Param("id"))
+	id, err := uuid.FromString(c.Param("id"))
 	if err != nil {
 		return err
 	}
@@ -49,10 +49,16 @@ func (h productHandler) getProduct(c echo.Context) error {
 }
 
 func (h productHandler) createProduct(c echo.Context) error {
+	var err error
+
+	// user := c.Get("user").(*jwt.Token)
+	// claims := user.Claims.(*util.Claims)
+
 	var product model.Product
 	c.Bind(&product)
+	// product.UserID = claims.ID
 
-	product, err := h.service.Create(product)
+	product, err = h.service.Create(product)
 	if err != nil {
 		return err
 	}
@@ -61,7 +67,7 @@ func (h productHandler) createProduct(c echo.Context) error {
 }
 
 func (h productHandler) updateProduct(c echo.Context) error {
-	id, err := uuid.Parse(c.Param("id"))
+	id, err := uuid.FromString(c.Param("id"))
 	if err != nil {
 		return err
 	}
@@ -72,7 +78,7 @@ func (h productHandler) updateProduct(c echo.Context) error {
 	}
 
 	c.Bind(&product)
-	product.UUID = id
+	product.ID = id
 
 	product, err = h.service.Update(product)
 	if err != nil {
@@ -83,12 +89,12 @@ func (h productHandler) updateProduct(c echo.Context) error {
 }
 
 func (h productHandler) deleteProduct(c echo.Context) error {
-	id, err := uuid.Parse(c.Param("id"))
+	id, err := uuid.FromString(c.Param("id"))
 	if err != nil {
 		return err
 	}
 
-	product, err := h.service.Delete(model.Product{UUID: id})
+	product, err := h.service.Delete(model.Product{ID: id})
 	if err != nil {
 		return err
 	}

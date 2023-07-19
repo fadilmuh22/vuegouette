@@ -2,7 +2,6 @@
 //
 // Documentation of our restskuy API.
 //
-//	 Schemes: http
 //	 BasePath: /api
 //	 Version: 1.0.0
 //

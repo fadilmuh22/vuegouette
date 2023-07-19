@@ -1,7 +1,7 @@
 package doc
 
 import (
-	"github.com/google/uuid"
+	uuid "github.com/satori/go.uuid"
 
 	"github.com/fadilmuh22/restskuy/internal/model"
 )
@@ -47,7 +47,8 @@ type UserBody struct {
 	// in:body
 	Body struct {
 		model.User
-		UUID uuid.UUID `json:"-"`
+		ID       uuid.UUID       `json:"-"`
+		Products []model.Product `json:"-"`
 	}
 }
 
@@ -65,7 +66,8 @@ type UserBodyParams struct {
 	// in:body
 	Body struct {
 		model.User
-		UUID uuid.UUID `json:"-"`
+		ID       uuid.UUID       `json:"-"`
+		Products []model.Product `json:"-"`
 	}
 }
 

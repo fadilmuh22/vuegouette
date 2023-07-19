@@ -2,6 +2,7 @@ package service
 
 import (
 	"github.com/fadilmuh22/restskuy/internal/model"
+	"github.com/fadilmuh22/restskuy/internal/util"
 	"gorm.io/gorm"
 )
 
@@ -40,13 +41,19 @@ func (s UserService) FindByEmail(email string) (model.User, error) {
 
 	result := s.db.Where("email = ?", email).First(&user)
 	if result.Error != nil {
-		return user, nil
+		return user, result.Error
 	}
 
 	return user, nil
 }
 
 func (s UserService) Create(user model.User) (model.User, error) {
+	var err error
+	user.Password, err = util.HashPassword(user.Password)
+	if err != nil {
+		return user, err
+	}
+
 	result := s.db.Create(&user)
 	if result.Error != nil {
 		return user, result.Error
@@ -56,6 +63,12 @@ func (s UserService) Create(user model.User) (model.User, error) {
 }
 
 func (s UserService) Update(user model.User) (model.User, error) {
+	var err error
+	user.Password, err = util.HashPassword(user.Password)
+	if err != nil {
+		return user, err
+	}
+
 	result := s.db.Save(&user)
 	if result.Error != nil {
 		return user, result.Error

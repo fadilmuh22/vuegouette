@@ -19,13 +19,7 @@ func NewAuthService(db *gorm.DB) AuthService {
 }
 
 func (s AuthService) Register(user model.User) (model.User, error) {
-	hashedPassword, err := util.HashPassword(user.Password)
-	if err != nil {
-		return user, err
-	}
-
-	user.Password = hashedPassword
-	user, err = s.UserService.Create(user)
+	user, err := s.UserService.Create(user)
 	if err != nil {
 		return user, err
 	}

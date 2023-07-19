@@ -4,6 +4,9 @@ consumes:
 definitions:
     Product:
         properties:
+            ID:
+                format: uuid
+                type: string
             description:
                 type: string
                 x-go-name: Description
@@ -18,27 +21,36 @@ definitions:
                 format: int64
                 type: integer
                 x-go-name: Stock
-            uuid:
+            user:
+                $ref: '#/definitions/User'
+            user_id:
                 format: uuid
                 type: string
-                x-go-name: UUID
+                x-go-name: UserID
         type: object
         x-go-package: github.com/fadilmuh22/restskuy/internal/model
     User:
         properties:
+            ID:
+                format: uuid
+                type: string
             email:
                 type: string
                 x-go-name: Email
+            is_admin:
+                type: boolean
+                x-go-name: IsAdmin
             name:
                 type: string
                 x-go-name: Name
             password:
                 type: string
                 x-go-name: Password
-            uuid:
-                format: uuid
-                type: string
-                x-go-name: UUID
+            products:
+                items:
+                    $ref: '#/definitions/Product'
+                type: array
+                x-go-name: Products
         type: object
         x-go-package: github.com/fadilmuh22/restskuy/internal/model
 info:
@@ -83,6 +95,9 @@ paths:
                         email:
                             type: string
                             x-go-name: Email
+                        is_admin:
+                            type: boolean
+                            x-go-name: IsAdmin
                         name:
                             type: string
                             x-go-name: Name
@@ -167,12 +182,6 @@ paths:
         put:
             operationId: updateProduct
             parameters:
-                - format: int64
-                  in: path
-                  name: id
-                  required: true
-                  type: integer
-                  x-go-name: ID
                 - in: body
                   name: Body
                   schema:
@@ -217,6 +226,9 @@ paths:
                         email:
                             type: string
                             x-go-name: Email
+                        is_admin:
+                            type: boolean
+                            x-go-name: IsAdmin
                         name:
                             type: string
                             x-go-name: Name
@@ -277,6 +289,9 @@ paths:
                         email:
                             type: string
                             x-go-name: Email
+                        is_admin:
+                            type: boolean
+                            x-go-name: IsAdmin
                         name:
                             type: string
                             x-go-name: Name
@@ -374,8 +389,6 @@ responses:
                     type: boolean
                     x-go-name: Success
             type: object
-schemes:
-    - http
 security:
     - api_key: []
 securityDefinitions:

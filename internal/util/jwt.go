@@ -6,6 +6,7 @@ import (
 
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/labstack/echo/v4"
+	uuid "github.com/satori/go.uuid"
 	"github.com/spf13/viper"
 
 	"github.com/fadilmuh22/restskuy/internal/model"
@@ -21,8 +22,10 @@ func GetJWTSecret() string {
 // Create a struct that will be encoded to a JWT.
 // We add jwt.StandardClaims as an embedded type, to provide fields like expiry time.
 type Claims struct {
-	Email string `json:"email"`
-	Name  string `json:"name"`
+	ID      uuid.UUID `json:"uuid"`
+	Email   string    `json:"email"`
+	Name    string    `json:"name"`
+	IsAdmin bool      `json:"is_admin"`
 	jwt.RegisteredClaims
 }
 
@@ -43,6 +46,7 @@ func GenerateAccessToken(user *model.User, c echo.Context) (string, error) {
 func generateToken(user *model.User, expirationTime time.Time, secret []byte) (string, time.Time, error) {
 	// Create the JWT claims, which includes the username and expiry time.
 	claims := &Claims{
+		ID:    user.ID,
 		Name:  user.Name,
 		Email: user.Email,
 		RegisteredClaims: jwt.RegisteredClaims{

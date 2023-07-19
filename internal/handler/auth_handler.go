@@ -35,7 +35,7 @@ func (h authHandler) register(c echo.Context) error {
 
 	user, err := h.service.Register(user)
 	if err != nil {
-		return echo.NewHTTPError(401, err.Error())
+		return echo.NewHTTPError(401, err)
 	}
 
 	return util.SendResponse(c, 200, true, "Success register", user)

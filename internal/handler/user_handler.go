@@ -3,8 +3,8 @@ package handler
 import (
 	"net/http"
 
-	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
+	uuid "github.com/satori/go.uuid"
 	"gorm.io/gorm"
 
 	"github.com/fadilmuh22/restskuy/internal/middleware"
@@ -36,7 +36,7 @@ func (h userHandler) getAllUser(c echo.Context) error {
 
 // get user by id
 func (h userHandler) getUser(c echo.Context) error {
-	id, err := uuid.Parse(c.Param("id"))
+	id, err := uuid.FromString(c.Param("id"))
 	if err != nil {
 		return err
 	}
@@ -62,7 +62,7 @@ func (h userHandler) createUser(c echo.Context) error {
 }
 
 func (h userHandler) updateUser(c echo.Context) error {
-	id, err := uuid.Parse(c.Param("id"))
+	id, err := uuid.FromString(c.Param("id"))
 	if err != nil {
 		return err
 	}
@@ -73,7 +73,7 @@ func (h userHandler) updateUser(c echo.Context) error {
 	}
 
 	c.Bind(&user)
-	user.UUID = id
+	user.ID = id
 	user.Password, err = util.HashPassword(user.Password)
 	if err != nil {
 		return err
@@ -88,12 +88,12 @@ func (h userHandler) updateUser(c echo.Context) error {
 }
 
 func (h userHandler) deleteUser(c echo.Context) error {
-	id, err := uuid.Parse(c.Param("id"))
+	id, err := uuid.FromString(c.Param("id"))
 	if err != nil {
 		return err
 	}
 
-	user, err := h.service.Delete(model.User{UUID: id})
+	user, err := h.service.Delete(model.User{ID: id})
 	if err != nil {
 		return err
 	}

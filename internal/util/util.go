@@ -7,6 +7,10 @@ import (
 	"github.com/fadilmuh22/restskuy/internal/model"
 )
 
+const (
+	DBContextKey = "__db"
+)
+
 func HashPassword(password string) (string, error) {
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
