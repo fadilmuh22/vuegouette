@@ -19,13 +19,8 @@ import (
 
 func runServer(e *echo.Echo) {
 	go func() {
-		var err error
 
-		if viper.GetString("ENV") == "production" {
-			err = e.StartAutoTLS(":443")
-		} else {
-			err = e.Start(":1323")
-		}
+		err := e.Start(":1323")
 
 		if err != nil && err != http.ErrServerClosed {
 			e.Logger.Fatal("shutting down the server, ", err)
