@@ -28,36 +28,36 @@ func (s ProductService) FindAll() ([]model.Product, error) {
 func (s ProductService) FindById(id string) (model.Product, error) {
 	var product model.Product
 
-	result := s.db.Where("id = ?", id).First(&product)
-	if result.Error != nil {
-		return product, result.Error
+	err := s.db.Where("id = ?", id).First(&product).Error
+	if err != nil {
+		return product, err
 	}
 
 	return product, nil
 }
 
 func (s ProductService) Create(product model.Product) (model.Product, error) {
-	result := s.db.Create(&product)
-	if result.Error != nil {
-		return product, result.Error
+	err := s.db.Create(&product).Error
+	if err != nil {
+		return product, err
 	}
 
 	return product, nil
 }
 
 func (s ProductService) Update(product model.Product) (model.Product, error) {
-	result := s.db.Save(&product)
-	if result.Error != nil {
-		return product, result.Error
+	err := s.db.Save(&product).Error
+	if err != nil {
+		return product, err
 	}
 
 	return product, nil
 }
 
 func (s ProductService) Delete(product model.Product) (model.Product, error) {
-	result := s.db.Delete(&product)
-	if result.Error != nil {
-		return product, result.Error
+	err := s.db.Delete(&product).Error
+	if err != nil {
+		return product, err
 	}
 
 	return product, nil

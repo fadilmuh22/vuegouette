@@ -59,6 +59,10 @@ func (h productHandler) createProduct(c echo.Context) error {
 	c.Bind(&product)
 	product.UserID = claims.ID
 
+	if err := c.Validate(product); err != nil {
+		return err
+	}
+
 	product, err = h.service.Create(product)
 	if err != nil {
 		return err
@@ -80,6 +84,10 @@ func (h productHandler) updateProduct(c echo.Context) error {
 
 	c.Bind(&product)
 	product.ID = id
+
+	if err := c.Validate(product); err != nil {
+		return err
+	}
 
 	product, err = h.service.Update(product)
 	if err != nil {

@@ -53,6 +53,10 @@ func (h userHandler) createUser(c echo.Context) error {
 	var user model.User
 	c.Bind(&user)
 
+	if err := c.Validate(user); err != nil {
+		return err
+	}
+
 	user, err := h.service.Create(user)
 	if err != nil {
 		return err
@@ -74,6 +78,11 @@ func (h userHandler) updateUser(c echo.Context) error {
 
 	c.Bind(&user)
 	user.ID = id
+
+	if err := c.Validate(user); err != nil {
+		return err
+	}
+
 	user.Password, err = util.HashPassword(user.Password)
 	if err != nil {
 		return err
