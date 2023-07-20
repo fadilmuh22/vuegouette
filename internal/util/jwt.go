@@ -46,9 +46,10 @@ func GenerateAccessToken(user *model.User, c echo.Context) (string, error) {
 func generateToken(user *model.User, expirationTime time.Time, secret []byte) (string, time.Time, error) {
 	// Create the JWT claims, which includes the username and expiry time.
 	claims := &Claims{
-		ID:    user.ID,
-		Name:  user.Name,
-		Email: user.Email,
+		ID:      user.ID,
+		Name:    user.Name,
+		Email:   user.Email,
+		IsAdmin: user.IsAdmin,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour * 72)),
 		},

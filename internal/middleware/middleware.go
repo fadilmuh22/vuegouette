@@ -60,11 +60,11 @@ func DBMiddleware(db *gorm.DB) echo.MiddlewareFunc {
 	}
 }
 
-func ProductAuthor(productAuthor string) echo.MiddlewareFunc {
+func ProductAuthor() echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
-			// user := c.Get("user").(*jwt.Token)
-			// claims := user.Claims.(*util.Claims)
+			user := c.Get("user").(*jwt.Token)
+			claims := user.Claims.(*util.Claims)
 			db := c.Get(util.DBContextKey).(*gorm.DB)
 
 			productID := c.Param("id")
@@ -75,9 +75,9 @@ func ProductAuthor(productAuthor string) echo.MiddlewareFunc {
 				return echo.NewHTTPError(http.StatusNotFound, "Product not found")
 			}
 
-			// if claims.ID != product.UserID {
-			// 	return echo.NewHTTPError(http.StatusUnauthorized, "Unauthorized")
-			// }
+			if !claims.IsAdmin && claims.ID != product.UserID {
+				return echo.NewHTTPError(http.StatusUnauthorized, "Unauthorized")
+			}
 
 			return next(c)
 		}

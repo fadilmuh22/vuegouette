@@ -3,6 +3,7 @@ package handler
 import (
 	"net/http"
 
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/labstack/echo/v4"
 	uuid "github.com/satori/go.uuid"
 	"gorm.io/gorm"
@@ -51,12 +52,12 @@ func (h productHandler) getProduct(c echo.Context) error {
 func (h productHandler) createProduct(c echo.Context) error {
 	var err error
 
-	// user := c.Get("user").(*jwt.Token)
-	// claims := user.Claims.(*util.Claims)
+	user := c.Get("user").(*jwt.Token)
+	claims := user.Claims.(*util.Claims)
 
 	var product model.Product
 	c.Bind(&product)
-	// product.UserID = claims.ID
+	product.UserID = claims.ID
 
 	product, err = h.service.Create(product)
 	if err != nil {
@@ -108,7 +109,7 @@ func (h productHandler) HandleRoutes(g *echo.Group) {
 		product.GET("", h.getProducts)
 		product.POST("", h.createProduct, middleware.Auth())
 		product.GET("/:id", h.getProduct, middleware.Auth())
-		product.PUT("/:id", h.updateProduct, middleware.Auth())
-		product.DELETE("/:id", h.deleteProduct, middleware.Auth())
+		product.PUT("/:id", h.updateProduct, middleware.Auth(), middleware.ProductAuthor())
+		product.DELETE("/:id", h.deleteProduct, middleware.Auth(), middleware.ProductAuthor())
 	}
 }

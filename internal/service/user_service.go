@@ -17,7 +17,7 @@ func NewUserService(db *gorm.DB) UserService {
 func (s UserService) FindAll() ([]model.User, error) {
 	var users []model.User
 
-	result := s.db.Find(&users)
+	result := s.db.Model(&model.User{}).Find(&users)
 	if result.Error != nil {
 		return users, result.Error
 	}
@@ -63,12 +63,6 @@ func (s UserService) Create(user model.User) (model.User, error) {
 }
 
 func (s UserService) Update(user model.User) (model.User, error) {
-	var err error
-	user.Password, err = util.HashPassword(user.Password)
-	if err != nil {
-		return user, err
-	}
-
 	result := s.db.Save(&user)
 	if result.Error != nil {
 		return user, result.Error

@@ -63,7 +63,7 @@ type ProductBody struct {
 type ProductBodyParams struct {
 	// in:path
 	// required:true
-	UUID uuid.UUID `json:"-"`
+	ID uuid.UUID `json:"id"`
 	// in:body
 	Body struct {
 		model.Product

@@ -22,7 +22,7 @@ func runServer(e *echo.Echo) {
 		var err error
 
 		if viper.GetString("ENV") == "production" {
-			err = e.StartAutoTLS(":1323")
+			err = e.StartAutoTLS(":443")
 		} else {
 			err = e.Start(":1323")
 		}

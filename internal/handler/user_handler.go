@@ -105,9 +105,9 @@ func (h userHandler) HandleRoutes(g *echo.Group) {
 	user := g.Group("/user")
 	{
 		user.GET("", h.getAllUser)
-		user.GET("/:id", h.getUser, middleware.Auth())
-		user.POST("", h.createUser, middleware.Auth())
-		user.PUT("/:id", h.updateUser, middleware.Auth())
-		user.DELETE("/:id", h.deleteUser, middleware.Auth())
+		user.GET("/:id", h.getUser, middleware.Auth(), middleware.Admin)
+		user.POST("", h.createUser, middleware.Auth(), middleware.Admin)
+		user.PUT("/:id", h.updateUser, middleware.Auth(), middleware.Admin)
+		user.DELETE("/:id", h.deleteUser, middleware.Auth(), middleware.Admin)
 	}
 }

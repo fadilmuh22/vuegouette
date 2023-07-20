@@ -17,9 +17,9 @@ func NewProductService(db *gorm.DB) ProductService {
 func (s ProductService) FindAll() ([]model.Product, error) {
 	var products []model.Product
 
-	result := s.db.Find(&products)
-	if result.Error != nil {
-		return products, result.Error
+	err := s.db.Model(&model.Product{}).Preload("User").Find(&products).Error
+	if err != nil {
+		return products, err
 	}
 
 	return products, nil
