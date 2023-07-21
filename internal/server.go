@@ -58,8 +58,8 @@ func StartServer() {
 
 	db := db.Connect()
 
-	e.Use(middleware.TransformErrorResponse)
 	e.Use(middleware.DBMiddleware(db))
+	e.Use(middleware.TransformErrorResponse)
 
 	// Validator
 	var err error

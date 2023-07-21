@@ -115,9 +115,9 @@ func (h productHandler) HandleRoutes(g *echo.Group) {
 	product := g.Group("/product")
 	{
 		product.GET("", h.getProducts)
-		product.POST("", h.createProduct, middleware.Auth())
-		product.GET("/:id", h.getProduct, middleware.Auth())
-		product.PUT("/:id", h.updateProduct, middleware.Auth(), middleware.ProductAuthor())
-		product.DELETE("/:id", h.deleteProduct, middleware.Auth(), middleware.ProductAuthor())
+		product.POST("", h.createProduct, middleware.Auth)
+		product.GET("/:id", h.getProduct, middleware.Auth)
+		product.PUT("/:id", h.updateProduct, middleware.Auth, middleware.ProductAuthor)
+		product.DELETE("/:id", h.deleteProduct, middleware.Auth, middleware.ProductAuthor)
 	}
 }

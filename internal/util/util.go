@@ -8,7 +8,9 @@ import (
 )
 
 const (
-	DBContextKey = "__db"
+	DBContextKey   = "__db"
+	JWTContextKey  = "__jwt"
+	AuthContextKey = "__auth"
 )
 
 func HashPassword(password string) (string, error) {
