@@ -33,6 +33,10 @@ func (h authHandler) register(c echo.Context) error {
 	var user model.User
 	c.Bind(&user)
 
+	if err := c.Validate(user); err != nil {
+		return err
+	}
+
 	user, err := h.service.Register(user)
 	if err != nil {
 		return echo.NewHTTPError(401, err)
