@@ -6,6 +6,21 @@ import (
 	"github.com/fadilmuh22/restskuy/internal/model"
 )
 
+type ProductClean struct {
+	model.Product
+	User struct {
+		model.User
+		Products []model.Product `json:"-"`
+	} `json:"user"`
+}
+
+type ProductBody struct {
+	model.Product
+	ID     uuid.UUID  `json:"-"`
+	UserID uuid.UUID  `json:"-"`
+	User   model.User `json:"-"`
+}
+
 // swagger:route GET /product product listProducts
 // List all products.
 // responses:
@@ -17,8 +32,8 @@ type ProductsResponse struct {
 	// in:body
 	Body struct {
 		model.BasicResponse
-		Data []model.Product `json:"data"`
-	}
+		Data []ProductClean
+	} `json:"data"`
 }
 
 // swagger:route GET /product/{id} product getProduct
@@ -32,7 +47,7 @@ type ProductResponse struct {
 	// in: body
 	Body struct {
 		model.BasicResponse
-		Data model.Product `json:"data"`
+		Data ProductClean `json:"data"`
 	}
 }
 
@@ -43,14 +58,9 @@ type ProductResponse struct {
 //	200: productResponse
 //
 // swagger:parameters createProduct
-type ProductBody struct {
+type ProductCreateBody struct {
 	// in:body
-	Body struct {
-		model.Product
-		ID     uuid.UUID  `json:"-"`
-		UserID uuid.UUID  `json:"-"`
-		User   model.User `json:"-"`
-	}
+	Body ProductBody
 }
 
 // swagger:route PUT /product/{id} product updateProduct
@@ -60,17 +70,12 @@ type ProductBody struct {
 //	200: productResponse
 //
 // swagger:parameters updateProduct
-type ProductBodyParams struct {
+type ProductUpdateBody struct {
 	// in:path
 	// required:true
 	ID uuid.UUID `json:"id"`
 	// in:body
-	Body struct {
-		model.Product
-		ID     uuid.UUID  `json:"-"`
-		UserID uuid.UUID  `json:"-"`
-		User   model.User `json:"-"`
-	}
+	Body ProductBody
 }
 
 // swagger:route DELETE /product/{id} product deleteProduct

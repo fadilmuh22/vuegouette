@@ -6,6 +6,17 @@ import (
 	"github.com/fadilmuh22/restskuy/internal/model"
 )
 
+type UserClean struct {
+	model.User
+	Products []model.Product `json:"-"`
+}
+
+type UserBody struct {
+	model.User
+	ID       uuid.UUID       `json:"-"`
+	Products []model.Product `json:"-"`
+}
+
 // swagger:route GET /user user listUsers
 // List all users.
 // responses:
@@ -17,7 +28,7 @@ type UsersResponse struct {
 	// in:body
 	Body struct {
 		model.BasicResponse
-		Data []model.User `json:"data"`
+		Data []UserClean `json:"data"`
 	}
 }
 
@@ -32,7 +43,7 @@ type UserResponse struct {
 	// in: body
 	Body struct {
 		model.BasicResponse
-		Data model.User `json:"data"`
+		Data UserClean `json:"data"`
 	}
 }
 
@@ -43,13 +54,9 @@ type UserResponse struct {
 //	200: userResponse
 //
 // swagger:parameters createUser
-type UserBody struct {
+type UserCreateBody struct {
 	// in:body
-	Body struct {
-		model.User
-		ID       uuid.UUID       `json:"-"`
-		Products []model.Product `json:"-"`
-	}
+	Body UserBody
 }
 
 // swagger:route PUT /user/{id} user updateUser
@@ -59,16 +66,12 @@ type UserBody struct {
 //	200: userResponse
 //
 // swagger:parameters updateUser
-type UserBodyParams struct {
+type UserUpdateBody struct {
 	// in:path
 	// required:true
 	ID uuid.UUID `json:"id"`
 	// in:body
-	Body struct {
-		model.User
-		ID       uuid.UUID       `json:"-"`
-		Products []model.Product `json:"-"`
-	}
+	Body UserBody
 }
 
 // swagger:route DELETE /user/{id} user deleteUser

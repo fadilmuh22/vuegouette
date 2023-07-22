@@ -1,10 +1,7 @@
 package doc
 
 import (
-	uuid "github.com/satori/go.uuid"
-
 	"github.com/fadilmuh22/restskuy/internal/model"
-	"github.com/fadilmuh22/restskuy/internal/util"
 )
 
 // swagger:route POST /auth/login auth login
@@ -35,11 +32,7 @@ type LoginBody struct {
 // swagger:parameters register
 type RegisterBody struct {
 	// in:body
-	Body struct {
-		model.User
-		ID       uuid.UUID       `json:"-"`
-		Products []model.Product `json:"-"`
-	}
+	Body UserBody
 }
 
 // swagger:response loginRegisterResponse
@@ -51,7 +44,7 @@ type LoginRegisterResponse struct {
 			// The token
 			Token string `json:"token"`
 			// The user
-			User model.User `json:"user"`
+			UserClean
 		} `json:"data"`
 	}
 }
@@ -69,7 +62,7 @@ type MeResponse struct {
 		model.BasicResponse
 		Data struct {
 			// The user
-			util.Claims
+			UserClean
 		} `json:"data"`
 	}
 }
