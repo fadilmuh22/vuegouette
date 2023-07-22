@@ -4,6 +4,7 @@ import (
 	uuid "github.com/satori/go.uuid"
 
 	"github.com/fadilmuh22/restskuy/internal/model"
+	"github.com/fadilmuh22/restskuy/internal/util"
 )
 
 // swagger:route POST /auth/login auth login
@@ -51,6 +52,24 @@ type LoginRegisterResponse struct {
 			Token string `json:"token"`
 			// The user
 			User model.User `json:"user"`
+		} `json:"data"`
+	}
+}
+
+// swagger:route GET /auth/me auth me
+// Get current user.
+// responses:
+//
+//	200: meResponse
+//
+// swagger:response meResponse
+type MeResponse struct {
+	// in:body
+	Body struct {
+		model.BasicResponse
+		Data struct {
+			// The user
+			util.Claims
 		} `json:"data"`
 	}
 }

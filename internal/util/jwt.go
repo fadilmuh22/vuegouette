@@ -22,10 +22,8 @@ func GetJWTSecret() string {
 // Create a struct that will be encoded to a JWT.
 // We add jwt.StandardClaims as an embedded type, to provide fields like expiry time.
 type Claims struct {
-	ID      uuid.UUID `json:"uuid"`
-	Email   string    `json:"email"`
-	Name    string    `json:"name"`
-	IsAdmin bool      `json:"is_admin"`
+	ID uuid.UUID `json:"uuid"`
+	model.User
 	jwt.RegisteredClaims
 }
 
@@ -46,10 +44,7 @@ func GenerateAccessToken(user *model.User, c echo.Context) (string, error) {
 func generateToken(user *model.User, expirationTime time.Time, secret []byte) (string, time.Time, error) {
 	// Create the JWT claims, which includes the username and expiry time.
 	claims := &Claims{
-		ID:      user.ID,
-		Name:    user.Name,
-		Email:   user.Email,
-		IsAdmin: user.IsAdmin,
+		User: *user,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour * 72)),
 		},

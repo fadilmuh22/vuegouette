@@ -2,6 +2,15 @@ basePath: /api
 consumes:
     - application/json
 definitions:
+    ClaimStrings:
+        description: |-
+            ClaimStrings is basically just a slice of strings, but it can be either
+            serialized from a string array or just a string. This type is necessary,
+            since the "aud" claim can either be a single string or an array.
+        items:
+            type: string
+        type: array
+        x-go-package: github.com/golang-jwt/jwt/v5
     Product:
         properties:
             ID:
@@ -82,6 +91,15 @@ paths:
                 "200":
                     $ref: '#/responses/loginRegisterResponse'
             summary: Login.
+            tags:
+                - auth
+    /auth/me:
+        get:
+            operationId: me
+            responses:
+                "200":
+                    $ref: '#/responses/meResponse'
+            summary: Get current user.
             tags:
                 - auth
     /auth/register:
@@ -326,6 +344,71 @@ responses:
                             x-go-name: Token
                         user:
                             $ref: '#/definitions/User'
+                    type: object
+                    x-go-name: Data
+                message:
+                    type: string
+                    x-go-name: Message
+                status:
+                    type: boolean
+                    x-go-name: Success
+            type: object
+    meResponse:
+        description: ""
+        schema:
+            properties:
+                data:
+                    properties:
+                        ID:
+                            format: uuid
+                            type: string
+                        aud:
+                            $ref: '#/definitions/ClaimStrings'
+                        email:
+                            type: string
+                            x-go-name: Email
+                        exp:
+                            description: the `exp` (Expiration Time) claim. See https://datatracker.ietf.org/doc/html/rfc7519#section-4.1.4
+                            type: string
+                            x-go-name: ExpiresAt
+                        iat:
+                            description: the `iat` (Issued At) claim. See https://datatracker.ietf.org/doc/html/rfc7519#section-4.1.6
+                            type: string
+                            x-go-name: IssuedAt
+                        is_admin:
+                            type: boolean
+                            x-go-name: IsAdmin
+                        iss:
+                            description: the `iss` (Issuer) claim. See https://datatracker.ietf.org/doc/html/rfc7519#section-4.1.1
+                            type: string
+                            x-go-name: Issuer
+                        jti:
+                            description: the `jti` (JWT ID) claim. See https://datatracker.ietf.org/doc/html/rfc7519#section-4.1.7
+                            type: string
+                            x-go-name: ID
+                        name:
+                            type: string
+                            x-go-name: Name
+                        nbf:
+                            description: the `nbf` (Not Before) claim. See https://datatracker.ietf.org/doc/html/rfc7519#section-4.1.5
+                            type: string
+                            x-go-name: NotBefore
+                        password:
+                            type: string
+                            x-go-name: Password
+                        products:
+                            items:
+                                $ref: '#/definitions/Product'
+                            type: array
+                            x-go-name: Products
+                        sub:
+                            description: the `sub` (Subject) claim. See https://datatracker.ietf.org/doc/html/rfc7519#section-4.1.2
+                            type: string
+                            x-go-name: Subject
+                        uuid:
+                            format: uuid
+                            type: string
+                            x-go-name: ID
                     type: object
                     x-go-name: Data
                 message:

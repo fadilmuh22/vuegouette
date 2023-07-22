@@ -12,8 +12,8 @@ import (
 	"github.com/fadilmuh22/restskuy/internal/util"
 )
 
-var (
-	Auth = echojwt.WithConfig(echojwt.Config{
+func Auth() echo.MiddlewareFunc {
+	return echojwt.WithConfig(echojwt.Config{
 		NewClaimsFunc: func(c echo.Context) jwt.Claims {
 			return new(util.Claims)
 		},
@@ -21,17 +21,17 @@ var (
 		TokenLookup: "header:Authorization",
 		ContextKey:  util.JWTContextKey,
 		SuccessHandler: func(c echo.Context) {
-			token := c.Get(util.JWTContextKey).(*jwt.Token)
-			claims := token.Claims.(*util.Claims)
+			user := c.Get(util.JWTContextKey).(*jwt.Token)
+			claims := user.Claims.(*util.Claims)
 
 			c.Set(util.AuthContextKey, claims)
 		},
 	})
-)
+}
 
 func Admin(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		auth := c.Get(util.JWTContextKey).(*util.Claims)
+		auth := c.Get(util.AuthContextKey).(*util.Claims)
 
 		if !auth.IsAdmin {
 			return echo.NewHTTPError(http.StatusUnauthorized, "Unauthorized")
@@ -43,7 +43,7 @@ func Admin(next echo.HandlerFunc) echo.HandlerFunc {
 
 func ProductAuthor(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		auth := c.Get(util.JWTContextKey).(*util.Claims)
+		auth := c.Get(util.AuthContextKey).(*util.Claims)
 		db := c.Get(util.DBContextKey).(*gorm.DB)
 
 		productID := c.Param("id")

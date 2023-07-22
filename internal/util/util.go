@@ -9,7 +9,7 @@ import (
 
 const (
 	DBContextKey   = "__db"
-	JWTContextKey  = "__jwt"
+	JWTContextKey  = "__user"
 	AuthContextKey = "__auth"
 )
 

@@ -4,6 +4,7 @@ import (
 	"github.com/labstack/echo/v4"
 	"gorm.io/gorm"
 
+	"github.com/fadilmuh22/restskuy/internal/middleware"
 	"github.com/fadilmuh22/restskuy/internal/model"
 	"github.com/fadilmuh22/restskuy/internal/service"
 	"github.com/fadilmuh22/restskuy/internal/util"
@@ -66,10 +67,17 @@ func (h authHandler) login(c echo.Context) error {
 	})
 }
 
+func (h authHandler) me(c echo.Context) error {
+	auth := c.Get(util.AuthContextKey).(*util.Claims)
+
+	return util.SendResponse(c, 200, true, "Success get me", auth.User)
+}
+
 func (h authHandler) HandleRoutes(g *echo.Group) {
 	auth := g.Group("/auth")
 	{
 		auth.POST("/login", h.login)
 		auth.POST("/register", h.register)
+		auth.GET("/me", h.me, middleware.Auth())
 	}
 }
