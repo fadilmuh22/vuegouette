@@ -2,15 +2,6 @@ basePath: /api
 consumes:
     - application/json
 definitions:
-    ClaimStrings:
-        description: |-
-            ClaimStrings is basically just a slice of strings, but it can be either
-            serialized from a string array or just a string. This type is necessary,
-            since the "aud" claim can either be a single string or an array.
-        items:
-            type: string
-        type: array
-        x-go-package: github.com/golang-jwt/jwt/v5
     Product:
         properties:
             ID:
@@ -38,6 +29,68 @@ definitions:
                 x-go-name: UserID
         type: object
         x-go-package: github.com/fadilmuh22/restskuy/internal/model
+    ProductBody:
+        properties:
+            description:
+                type: string
+                x-go-name: Description
+            name:
+                type: string
+                x-go-name: Name
+            price:
+                format: double
+                type: number
+                x-go-name: Price
+            stock:
+                format: int64
+                type: integer
+                x-go-name: Stock
+        type: object
+        x-go-package: github.com/fadilmuh22/restskuy/doc
+    ProductClean:
+        properties:
+            ID:
+                format: uuid
+                type: string
+            description:
+                type: string
+                x-go-name: Description
+            name:
+                type: string
+                x-go-name: Name
+            price:
+                format: double
+                type: number
+                x-go-name: Price
+            stock:
+                format: int64
+                type: integer
+                x-go-name: Stock
+            user:
+                $ref: '#/definitions/User'
+                properties:
+                    ID:
+                        format: uuid
+                        type: string
+                    email:
+                        type: string
+                        x-go-name: Email
+                    is_admin:
+                        type: boolean
+                        x-go-name: IsAdmin
+                    name:
+                        type: string
+                        x-go-name: Name
+                    password:
+                        type: string
+                        x-go-name: Password
+                type: object
+            user_id:
+                format: uuid
+                type: string
+                x-go-name: UserID
+        type: object
+        x-go-package: github.com/fadilmuh22/restskuy/doc
     User:
         properties:
             ID:
@@ -62,6 +115,41 @@ definitions:
                 x-go-name: Products
         type: object
         x-go-package: github.com/fadilmuh22/restskuy/internal/model
+    UserBody:
+        properties:
+            email:
+                type: string
+                x-go-name: Email
+            is_admin:
+                type: boolean
+                x-go-name: IsAdmin
+            name:
+                type: string
+                x-go-name: Name
+            password:
+                type: string
+                x-go-name: Password
+        type: object
+        x-go-package: github.com/fadilmuh22/restskuy/doc
+    UserClean:
+        properties:
+            ID:
+                format: uuid
+                type: string
+            email:
+                type: string
+                x-go-name: Email
+            is_admin:
+                type: boolean
+                x-go-name: IsAdmin
+            name:
+                type: string
+                x-go-name: Name
+            password:
+                type: string
+                x-go-name: Password
+        type: object
+        x-go-package: github.com/fadilmuh22/restskuy/doc
 info:
     description: Documentation of our restskuy API.
     title: restskuy.
@@ -109,20 +197,7 @@ paths:
                 - in: body
                   name: Body
                   schema:
-                    properties:
-                        email:
-                            type: string
-                            x-go-name: Email
-                        is_admin:
-                            type: boolean
-                            x-go-name: IsAdmin
-                        name:
-                            type: string
-                            x-go-name: Name
-                        password:
-                            type: string
-                            x-go-name: Password
-                    type: object
+                    $ref: '#/definitions/UserBody'
             responses:
                 "200":
                     $ref: '#/responses/loginRegisterResponse'
@@ -144,22 +219,7 @@ paths:
                 - in: body
                   name: Body
                   schema:
-                    properties:
-                        description:
-                            type: string
-                            x-go-name: Description
-                        name:
-                            type: string
-                            x-go-name: Name
-                        price:
-                            format: double
-                            type: number
-                            x-go-name: Price
-                        stock:
-                            format: int64
-                            type: integer
-                            x-go-name: Stock
-                    type: object
+                    $ref: '#/definitions/ProductBody'
             responses:
                 "200":
                     $ref: '#/responses/productResponse'
@@ -209,22 +269,7 @@ paths:
                 - in: body
                   name: Body
                   schema:
-                    properties:
-                        description:
-                            type: string
-                            x-go-name: Description
-                        name:
-                            type: string
-                            x-go-name: Name
-                        price:
-                            format: double
-                            type: number
-                            x-go-name: Price
-                        stock:
-                            format: int64
-                            type: integer
-                            x-go-name: Stock
-                    type: object
+                    $ref: '#/definitions/ProductBody'
             responses:
                 "200":
                     $ref: '#/responses/productResponse'
@@ -246,20 +291,7 @@ paths:
                 - in: body
                   name: Body
                   schema:
-                    properties:
-                        email:
-                            type: string
-                            x-go-name: Email
-                        is_admin:
-                            type: boolean
-                            x-go-name: IsAdmin
-                        name:
-                            type: string
-                            x-go-name: Name
-                        password:
-                            type: string
-                            x-go-name: Password
-                    type: object
+                    $ref: '#/definitions/UserBody'
             responses:
                 "200":
                     $ref: '#/responses/userResponse'
@@ -309,20 +341,7 @@ paths:
                 - in: body
                   name: Body
                   schema:
-                    properties:
-                        email:
-                            type: string
-                            x-go-name: Email
-                        is_admin:
-                            type: boolean
-                            x-go-name: IsAdmin
-                        name:
-                            type: string
-                            x-go-name: Name
-                        password:
-                            type: string
-                            x-go-name: Password
-                    type: object
+                    $ref: '#/definitions/UserBody'
             responses:
                 "200":
                     $ref: '#/responses/userResponse'
@@ -338,12 +357,25 @@ responses:
             properties:
                 data:
                     properties:
+                        ID:
+                            format: uuid
+                            type: string
+                        email:
+                            type: string
+                            x-go-name: Email
+                        is_admin:
+                            type: boolean
+                            x-go-name: IsAdmin
+                        name:
+                            type: string
+                            x-go-name: Name
+                        password:
+                            type: string
+                            x-go-name: Password
                         token:
                             description: The token
                             type: string
                             x-go-name: Token
-                        user:
-                            $ref: '#/definitions/User'
                     type: object
                     x-go-name: Data
                 message:
@@ -362,53 +394,18 @@ responses:
                         ID:
                             format: uuid
                             type: string
-                        aud:
-                            $ref: '#/definitions/ClaimStrings'
                         email:
                             type: string
                             x-go-name: Email
-                        exp:
-                            description: the `exp` (Expiration Time) claim. See https://datatracker.ietf.org/doc/html/rfc7519#section-4.1.4
-                            type: string
-                            x-go-name: ExpiresAt
-                        iat:
-                            description: the `iat` (Issued At) claim. See https://datatracker.ietf.org/doc/html/rfc7519#section-4.1.6
-                            type: string
-                            x-go-name: IssuedAt
                         is_admin:
                             type: boolean
                             x-go-name: IsAdmin
-                        iss:
-                            description: the `iss` (Issuer) claim. See https://datatracker.ietf.org/doc/html/rfc7519#section-4.1.1
-                            type: string
-                            x-go-name: Issuer
-                        jti:
-                            description: the `jti` (JWT ID) claim. See https://datatracker.ietf.org/doc/html/rfc7519#section-4.1.7
-                            type: string
-                            x-go-name: ID
                         name:
                             type: string
                             x-go-name: Name
-                        nbf:
-                            description: the `nbf` (Not Before) claim. See https://datatracker.ietf.org/doc/html/rfc7519#section-4.1.5
-                            type: string
-                            x-go-name: NotBefore
                         password:
                             type: string
                             x-go-name: Password
-                        products:
-                            items:
-                                $ref: '#/definitions/Product'
-                            type: array
-                            x-go-name: Products
-                        sub:
-                            description: the `sub` (Subject) claim. See https://datatracker.ietf.org/doc/html/rfc7519#section-4.1.2
-                            type: string
-                            x-go-name: Subject
-                        uuid:
-                            format: uuid
-                            type: string
-                            x-go-name: ID
                     type: object
                     x-go-name: Data
                 message:
@@ -423,7 +420,7 @@ responses:
         schema:
             properties:
                 data:
-                    $ref: '#/definitions/Product'
+                    $ref: '#/definitions/ProductClean'
                     x-go-name: Data
                 message:
                     type: string
@@ -436,10 +433,11 @@ responses:
         description: ""
         schema:
             properties:
-                data:
+                Data:
                     items:
-                        $ref: '#/definitions/Product'
+                        $ref: '#/definitions/ProductClean'
                     type: array
+                data:
                     x-go-name: Data
                 message:
                     type: string
@@ -453,7 +451,7 @@ responses:
         schema:
             properties:
                 data:
-                    $ref: '#/definitions/User'
+                    $ref: '#/definitions/UserClean'
                     x-go-name: Data
                 message:
                     type: string
@@ -468,7 +466,7 @@ responses:
             properties:
                 data:
                     items:
-                        $ref: '#/definitions/User'
+                        $ref: '#/definitions/UserClean'
                     type: array
                     x-go-name: Data
                 message:
