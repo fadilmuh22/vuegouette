@@ -7,7 +7,6 @@ import (
 	"github.com/spf13/viper"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
-	// "github.com/fadilmuh22/restskuy/internal/model"
 )
 
 func Connect() *gorm.DB {

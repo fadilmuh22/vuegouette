@@ -2,6 +2,7 @@ package internal
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"os"
 	"os/signal"
@@ -20,7 +21,7 @@ import (
 func runServer(e *echo.Echo) {
 	go func() {
 
-		err := e.Start(":1323")
+		err := e.Start(fmt.Sprintf(":%d", viper.GetInt("PORT")))
 
 		if err != nil && err != http.ErrServerClosed {
 			e.Logger.Fatal("shutting down the server, ", err)
