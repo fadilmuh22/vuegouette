@@ -1,4 +1,4 @@
-name: restkuy
+name: vuegoue
 services:
   postgres:
     image: postgres
@@ -9,7 +9,7 @@ services:
     ports:
       - "5432:5432"
 
-  app:
+  server:
     build:
       context: .
       dockerfile: Dockerfile
@@ -18,7 +18,7 @@ services:
       watch:
         - action: sync+restart
           path: ./
-          target: /app
+          target: /server
     environment:
       - PORT=${PORT}
     ports:
@@ -26,6 +26,20 @@ services:
     depends_on:
       - postgres
     user: root
+
+  web:
+    image: node:20-alpine
+    volumes:
+      - ./web:/web
+      - node_modules:/web/node_modules
+    working_dir: /web
+    ports:
+      - 5173:5173
+    depends_on:
+      - server
+    command: sh -c "npm install && npm run dev -- --host"
+    environment:
+      - ENV=docker
 
   pgadmin:
     image: dpage/pgadmin4
@@ -37,3 +51,6 @@ services:
       - "5050:80"
     depends_on:
       - postgres
+
+volumes:
+  node_modules:

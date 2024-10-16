@@ -1,4 +1,4 @@
-FROM golang:1.22-alpine AS production
+FROM golang:1.23-alpine AS production
 
 WORKDIR /app
 
@@ -12,7 +12,7 @@ RUN go build -o main cmd/main.go
 
 CMD ["./main"]
 
-FROM golang:1.22-alpine AS development
+FROM golang:1.23-alpine AS development
 
 WORKDIR /app
 
