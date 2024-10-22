@@ -1,6 +1,6 @@
-// Package classification restskuy.
+// Package classification VueGouette.
 //
-// Documentation of our restskuy API.
+// Documentation of our VueGouette API.
 //
 //	 BasePath: /api
 //	 Version: 1.0.0

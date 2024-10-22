@@ -8,13 +8,11 @@ import (
 
 type UserClean struct {
 	model.User
-	Products []model.Product `json:"-"`
 }
 
 type UserBody struct {
 	model.User
-	ID       uuid.UUID       `json:"-"`
-	Products []model.Product `json:"-"`
+	ID uuid.UUID `json:"-"`
 }
 
 // swagger:route GET /user user listUsers

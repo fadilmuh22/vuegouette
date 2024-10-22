@@ -48,3 +48,7 @@ func isValidateUUID(fl validator.FieldLevel) bool {
 	_, err := uuid.FromString(id)
 	return err == nil
 }
+
+func IsValidTikTokURL(url string) bool {
+	return len(url) > 0 // && strings.Contains(url, "tiktok.com") && strings.Contains(url, "video")
+}

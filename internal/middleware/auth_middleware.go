@@ -6,9 +6,7 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 	echojwt "github.com/labstack/echo-jwt/v4"
 	"github.com/labstack/echo/v4"
-	"gorm.io/gorm"
 
-	"github.com/fadilmuh22/restskuy/internal/model"
 	"github.com/fadilmuh22/restskuy/internal/util"
 )
 
@@ -34,27 +32,6 @@ func Admin(next echo.HandlerFunc) echo.HandlerFunc {
 		auth := c.Get(util.AuthContextKey).(*util.Claims)
 
 		if !auth.IsAdmin {
-			return echo.NewHTTPError(http.StatusUnauthorized, "Unauthorized")
-		}
-
-		return next(c)
-	}
-}
-
-func ProductAuthor(next echo.HandlerFunc) echo.HandlerFunc {
-	return func(c echo.Context) error {
-		auth := c.Get(util.AuthContextKey).(*util.Claims)
-		db := c.Get(util.DBContextKey).(*gorm.DB)
-
-		productID := c.Param("id")
-		var product model.Product
-		result := db.Where("id = ?", productID).First(&product)
-
-		if result.Error != nil {
-			return echo.NewHTTPError(http.StatusNotFound, "Product not found")
-		}
-
-		if !auth.IsAdmin && auth.ID != product.UserID {
 			return echo.NewHTTPError(http.StatusUnauthorized, "Unauthorized")
 		}
 

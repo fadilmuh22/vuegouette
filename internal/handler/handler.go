@@ -14,6 +14,6 @@ func NewApiHandlers(e *echo.Echo, db *gorm.DB) {
 
 	NewStaticHandler().HandleRoutes(api)
 	NewUserHandler(db).HandleRoutes(api)
-	NewProductHandler(db).HandleRoutes(api)
 	NewAuthHandler(db).HandleRoutes(api)
+	NewVideoHandler(db).HandleRoutes(api)
 }

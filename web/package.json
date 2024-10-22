@@ -15,7 +15,10 @@
     "format": "prettier --write src/"
   },
   "dependencies": {
-    "vue": "^3.5.12"
+    "@tanstack/vue-query": "^5.59.13",
+    "axios": "^1.7.7",
+    "vue": "^3.5.12",
+    "vue-plyr": "^7.0.0"
   },
   "devDependencies": {
     "@playwright/test": "^1.48.0",

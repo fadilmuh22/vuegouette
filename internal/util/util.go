@@ -33,3 +33,10 @@ func SendResponse(c echo.Context, status int, success bool, message string, data
 		Data:    data,
 	})
 }
+
+func IfThenElse(condition bool, a interface{}, b interface{}) interface{} {
+	if condition {
+		return a
+	}
+	return b
+}

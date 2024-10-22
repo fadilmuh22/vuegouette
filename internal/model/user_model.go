@@ -11,7 +11,6 @@ type User struct {
 	Email    string    `json:"email" gorm:"uniqueIndex" validate:"required,email"`
 	Password string    `json:"password" gorm:"not null" validate:"required,min=6"`
 	IsAdmin  bool      `json:"is_admin" gorm:"default:false"`
-	Products []Product `json:"products"`
 }
 
 func (u *User) BeforeCreate(tx *gorm.DB) (err error) {

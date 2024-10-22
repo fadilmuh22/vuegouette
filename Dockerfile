@@ -14,9 +14,14 @@ CMD ["./main"]
 
 FROM golang:1.23-alpine AS development
 
+# Install system dependencies including 'make'
+RUN apk update && apk add --no-cache gcc libc-dev make
+
 WORKDIR /server
 
-RUN go install github.com/air-verse/air@latest
+RUN CGO_ENABLED=0 go install -ldflags "-s -w -extldflags '-static'" github.com/go-delve/delve/cmd/dlv@latest
+
+RUN CGO_ENABLED=0 go install github.com/air-verse/air@latest
 
 COPY go.* ./
 

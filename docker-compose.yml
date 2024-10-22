@@ -1,4 +1,4 @@
-name: vuegoue
+name: vuegouette
 services:
   postgres:
     image: postgres
@@ -19,15 +19,23 @@ services:
         - action: sync+restart
           path: ./
           target: /server
+          ignore:
+            - web
     environment:
       - PORT=${PORT}
     ports:
       - "1323:1323"
+      - "2345:2345"
     depends_on:
       - postgres
     user: root
 
   web:
+    develop:
+      watch:
+        - action: sync+restart
+          path: ./web
+          target: /web
     image: node:20-alpine
     volumes:
       - ./web:/web

@@ -2,119 +2,6 @@ basePath: /api
 consumes:
     - application/json
 definitions:
-    Product:
-        properties:
-            ID:
-                format: uuid
-                type: string
-            description:
-                type: string
-                x-go-name: Description
-            name:
-                type: string
-                x-go-name: Name
-            price:
-                format: double
-                type: number
-                x-go-name: Price
-            stock:
-                format: int64
-                type: integer
-                x-go-name: Stock
-            user:
-                $ref: '#/definitions/User'
-            user_id:
-                format: uuid
-                type: string
-                x-go-name: UserID
-        type: object
-        x-go-package: github.com/fadilmuh22/restskuy/internal/model
-    ProductBody:
-        properties:
-            description:
-                type: string
-                x-go-name: Description
-            name:
-                type: string
-                x-go-name: Name
-            price:
-                format: double
-                type: number
-                x-go-name: Price
-            stock:
-                format: int64
-                type: integer
-                x-go-name: Stock
-        type: object
-        x-go-package: github.com/fadilmuh22/restskuy/doc
-    ProductClean:
-        properties:
-            ID:
-                format: uuid
-                type: string
-            description:
-                type: string
-                x-go-name: Description
-            name:
-                type: string
-                x-go-name: Name
-            price:
-                format: double
-                type: number
-                x-go-name: Price
-            stock:
-                format: int64
-                type: integer
-                x-go-name: Stock
-            user:
-                $ref: '#/definitions/User'
-                properties:
-                    ID:
-                        format: uuid
-                        type: string
-                    email:
-                        type: string
-                        x-go-name: Email
-                    is_admin:
-                        type: boolean
-                        x-go-name: IsAdmin
-                    name:
-                        type: string
-                        x-go-name: Name
-                    password:
-                        type: string
-                        x-go-name: Password
-                type: object
-            user_id:
-                format: uuid
-                type: string
-                x-go-name: UserID
-        type: object
-        x-go-package: github.com/fadilmuh22/restskuy/doc
-    User:
-        properties:
-            ID:
-                format: uuid
-                type: string
-            email:
-                type: string
-                x-go-name: Email
-            is_admin:
-                type: boolean
-                x-go-name: IsAdmin
-            name:
-                type: string
-                x-go-name: Name
-            password:
-                type: string
-                x-go-name: Password
-            products:
-                items:
-                    $ref: '#/definitions/Product'
-                type: array
-                x-go-name: Products
-        type: object
-        x-go-package: github.com/fadilmuh22/restskuy/internal/model
     UserBody:
         properties:
             email:
@@ -151,8 +38,8 @@ definitions:
         type: object
         x-go-package: github.com/fadilmuh22/restskuy/doc
 info:
-    description: Documentation of our restskuy API.
-    title: restskuy.
+    description: Documentation of our VueGouette API.
+    title: VueGouette.
     version: 1.0.0
 paths:
     /auth/login:
@@ -204,78 +91,6 @@ paths:
             summary: Register.
             tags:
                 - auth
-    /product:
-        get:
-            operationId: listProducts
-            responses:
-                "200":
-                    $ref: '#/responses/productsResponse'
-            summary: List all products.
-            tags:
-                - product
-        post:
-            operationId: createProduct
-            parameters:
-                - in: body
-                  name: Body
-                  schema:
-                    $ref: '#/definitions/ProductBody'
-            responses:
-                "200":
-                    $ref: '#/responses/productResponse'
-            summary: Create a new product.
-            tags:
-                - product
-    /product/{id}:
-        delete:
-            operationId: deleteProduct
-            parameters:
-                - format: int64
-                  in: path
-                  name: id
-                  required: true
-                  type: integer
-                  x-go-name: ID
-            responses:
-                "200":
-                    $ref: '#/responses/productResponse'
-            summary: Delete a product by id.
-            tags:
-                - product
-        get:
-            operationId: getProduct
-            parameters:
-                - format: int64
-                  in: path
-                  name: id
-                  required: true
-                  type: integer
-                  x-go-name: ID
-            responses:
-                "200":
-                    $ref: '#/responses/productResponse'
-            summary: Get a product by id.
-            tags:
-                - product
-        put:
-            operationId: updateProduct
-            parameters:
-                - format: uuid
-                  in: path
-                  name: id
-                  required: true
-                  type: string
-                  x-go-name: ID
-                - in: body
-                  name: Body
-                  schema:
-                    $ref: '#/definitions/ProductBody'
-            responses:
-                "200":
-                    $ref: '#/responses/productResponse'
-            summary: Update a product by id.
-            tags:
-                - product
     /user:
         get:
             operationId: listUsers
@@ -407,36 +222,6 @@ responses:
                             type: string
                             x-go-name: Password
                     type: object
-                    x-go-name: Data
-                message:
-                    type: string
-                    x-go-name: Message
-                status:
-                    type: boolean
-                    x-go-name: Success
-            type: object
-    productResponse:
-        description: ""
-        schema:
-            properties:
-                data:
-                    $ref: '#/definitions/ProductClean'
-                    x-go-name: Data
-                message:
-                    type: string
-                    x-go-name: Message
-                status:
-                    type: boolean
-                    x-go-name: Success
-            type: object
-    productsResponse:
-        description: ""
-        schema:
-            properties:
-                data:
-                    items:
-                        $ref: '#/definitions/ProductClean'
-                    type: array
                     x-go-name: Data
                 message:
                     type: string
