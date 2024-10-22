@@ -433,11 +433,10 @@ responses:
         description: ""
         schema:
             properties:
-                Data:
+                data:
                     items:
                         $ref: '#/definitions/ProductClean'
                     type: array
-                data:
                     x-go-name: Data
                 message:
                     type: string

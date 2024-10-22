@@ -32,8 +32,8 @@ type ProductsResponse struct {
 	// in:body
 	Body struct {
 		model.BasicResponse
-		Data []ProductClean
-	} `json:"data"`
+		Data []ProductClean `json:"data"`
+	}
 }
 
 // swagger:route GET /product/{id} product getProduct

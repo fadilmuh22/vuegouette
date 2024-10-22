@@ -1,6 +1,6 @@
 FROM golang:1.23-alpine AS production
 
-WORKDIR /app
+WORKDIR /server
 
 COPY go.* ./
 
@@ -14,7 +14,7 @@ CMD ["./main"]
 
 FROM golang:1.23-alpine AS development
 
-WORKDIR /app
+WORKDIR /server
 
 RUN go install github.com/air-verse/air@latest
 
