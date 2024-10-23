@@ -14,8 +14,21 @@ CMD ["./main"]
 
 FROM golang:1.23-alpine AS development
 
-# Install system dependencies including 'make'
+# Install system dependencies
 RUN apk update && apk add --no-cache gcc libc-dev make
+
+RUN apk update && apk upgrade && apk add --no-cache bash git && apk add --no-cache chromium
+
+# Installs latest Chromium package.
+RUN echo @edge http://nl.alpinelinux.org/alpine/edge/community >> /etc/apk/repositories \
+    && echo @edge http://nl.alpinelinux.org/alpine/edge/main >> /etc/apk/repositories \
+    && apk add --no-cache \
+    harfbuzz@edge \
+    nss@edge \
+    freetype@edge \
+    ttf-freefont@edge \
+    && rm -rf /var/cache/* \
+    && mkdir /var/cache/apkk
 
 WORKDIR /server
 

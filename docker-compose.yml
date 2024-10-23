@@ -9,6 +9,14 @@ services:
     ports:
       - "5432:5432"
 
+  redis:
+    image: redis
+    restart: always
+    environment:
+      - REDIS_PASSWORD=redis
+    ports:
+      - "6379:6379"
+
   server:
     build:
       context: .

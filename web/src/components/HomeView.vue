@@ -1,31 +1,27 @@
 <template>
   <div id="app">
-    <h1>Custom TikTok Video Player</h1>
-    <SearchVideo @play-video="setVideoUrl" />
-    <VideoPlayer v-if="videoUrl" :videoUrl="videoUrl" />
+    <div class="flex content-center justify-center">
+      <img
+        alt="Vue logo"
+        class="logo p-4"
+        src="@/assets/logo.svg"
+        width="125"
+        height="125"
+      />
+    </div>
+    <SearchVideo />
   </div>
 </template>
 
 <script lang="ts">
+import { defineComponent } from 'vue'
 import SearchVideo from './SearchVideo.vue'
-import VideoPlayer from './VideoPlayer.vue'
 
-export default {
+export default defineComponent({
   components: {
     SearchVideo,
-    VideoPlayer,
   },
-  data() {
-    return {
-      videoUrl: null,
-    }
-  },
-  methods: {
-    setVideoUrl(url) {
-      this.videoUrl = url
-    },
-  },
-}
+})
 </script>
 
 <style>

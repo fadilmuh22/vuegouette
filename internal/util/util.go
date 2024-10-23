@@ -8,9 +8,10 @@ import (
 )
 
 const (
-	DBContextKey   = "__db"
-	JWTContextKey  = "__user"
-	AuthContextKey = "__auth"
+	DBContextKey    = "__db"
+	RedisContextKey = "__redis"
+	JWTContextKey   = "__user"
+	AuthContextKey  = "__auth"
 )
 
 func HashPassword(password string) (string, error) {

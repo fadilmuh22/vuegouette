@@ -1,28 +1,39 @@
 <template>
-  <div v-if="videoUrl">
-    <vue-plyr>
-      <video :src="videoUrl" controls></video>
-    </vue-plyr>
-  </div>
+  <PlyrVue @register="registerVideoPlayer">
+    <video
+      class="max-h-80"
+      controls
+      playsinline
+      :src="getVideoUrl(video.video_url)"
+    ></video>
+  </PlyrVue>
 </template>
 
-<script lang="ts">
-import VuePlyr from 'vue-plyr'
-import 'vue-plyr/dist/vue-plyr.css'
+<script setup lang="ts">
+import { onMounted } from 'vue'
+import { usePlyrVue, PlyrVue } from 'plyr-vue'
 
-export default {
-  components: {
-    VuePlyr,
-  },
-  props: {
-    videoUrl: String,
-  },
+import type { TikTokItem } from '@/types'
+import 'plyr-vue/dist/plyr-vue.css'
+
+const { video } = defineProps<{
+  video: TikTokItem
+}>()
+
+const [registerVideoPlayer, videoPlayerInstance] = usePlyrVue({})
+
+onMounted(() => {
+  try {
+    videoPlayerInstance.value.once('error', e => {
+      console.log(e.detail.plyr.source)
+      videoPlayerInstance.value.play()
+    })
+  } catch (e) {
+    console.error(e)
+  }
+})
+
+const getVideoUrl = (videoUrl: string) => {
+  return `https://tikcdn.io/ssstik/${videoUrl.split('/').pop()}`
 }
 </script>
-
-<style scoped>
-video {
-  width: 100%;
-  height: auto;
-}
-</style>

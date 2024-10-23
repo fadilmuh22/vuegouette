@@ -57,9 +57,11 @@ func StartServer() {
 		e.Use(echomiddleware.HTTPSWWWRedirect())
 	}
 
-	db := db.Connect()
+	postgreDB := db.Connect()
+	redisClient := db.NewRedisClient()
 
-	e.Use(middleware.DBMiddleware(db))
+	e.Use(middleware.DBMiddleware(postgreDB))
+	e.Use(middleware.RedisMiddleware(redisClient))
 	e.Use(middleware.TransformErrorResponse)
 
 	// Validator
@@ -70,7 +72,7 @@ func StartServer() {
 	}
 
 	// Routes
-	handler.NewApiHandlers(e, db)
+	handler.NewApiHandlers(e, postgreDB, redisClient)
 
 	// Start server
 	runServer(e)
