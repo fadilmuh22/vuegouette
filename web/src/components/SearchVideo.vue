@@ -48,31 +48,17 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { useQuery } from '@tanstack/vue-query'
-import axios from 'axios'
+
 import VideoPlayer from './VideoPlayer.vue'
-import type { TikTokItem } from '@/types'
+import { useSearchVideoQuery } from '@/api'
 
 const searchTerm = ref('')
-
-const fetchVideos = async (): Promise<TikTokItem[]> => {
-  console.log('Fetching videos...')
-  const response = await axios.get(
-    `http://localhost:1323/api/video?keyword=${searchTerm.value}`,
-  )
-  return response.data.data as TikTokItem[] // Adjust this based on your API response structure
-}
 
 const {
   data: videos,
   isLoading,
   refetch,
-} = useQuery({
-  queryKey: ['videos', searchTerm],
-  queryFn: fetchVideos,
-  enabled: false, // Disable auto-fetching on component mount
-  refetchOnWindowFocus: false,
-})
+} = useSearchVideoQuery(searchTerm.value)
 
 const onSearch = () => {
   console.log('Search term:', searchTerm.value)

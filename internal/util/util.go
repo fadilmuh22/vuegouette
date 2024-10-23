@@ -1,6 +1,8 @@
 package util
 
 import (
+	"strings"
+
 	"github.com/labstack/echo/v4"
 	"golang.org/x/crypto/bcrypt"
 
@@ -40,4 +42,8 @@ func IfThenElse(condition bool, a interface{}, b interface{}) interface{} {
 		return a
 	}
 	return b
+}
+
+func TokenizeString(text string) []string {
+	return strings.Fields(text)
 }

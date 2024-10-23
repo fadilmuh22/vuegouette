@@ -79,3 +79,32 @@ func (s UserService) Delete(user model.User) (model.User, error) {
 
 	return user, nil
 }
+
+func (s UserService) GetUserProfile(id string) (model.UserProfile, error) {
+	var profile model.UserProfile
+
+	err := s.db.Where("id = ?", id).First(&profile).Error
+	if err != nil {
+		return profile, err
+	}
+
+	return profile, nil
+}
+
+func (s UserService) CreateUserProfile(profile model.UserProfile) (model.UserProfile, error) {
+	err := s.db.Create(&profile).Error
+	if err != nil {
+		return profile, err
+	}
+
+	return profile, nil
+}
+
+func (s UserService) UpdateUserProfile(profile model.UserProfile) (model.UserProfile, error) {
+	err := s.db.Save(&profile).Error
+	if err != nil {
+		return profile, err
+	}
+
+	return profile, nil
+}
