@@ -12,7 +12,7 @@ import (
 func Connect() *gorm.DB {
 	db, err := gorm.Open(postgres.Open(viper.GetString("DB_URL")), &gorm.Config{})
 
-	db.AutoMigrate(&model.User{}, &model.VideoKeyword{}, &model.TikTokItem{})
+	db.AutoMigrate(&model.User{}, &model.TikTokItem{}, &model.UserProfile{}, &model.Interest{})
 
 	if err != nil {
 		log.Fatal(err)

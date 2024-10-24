@@ -1,10 +1,12 @@
 package handler
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
 	uuid "github.com/satori/go.uuid"
+
 	"gorm.io/gorm"
 
 	"github.com/fadilmuh22/restskuy/internal/middleware"
@@ -112,65 +114,13 @@ func (h userHandler) deleteUser(c echo.Context) error {
 
 func (h userHandler) updateUserProfile(c echo.Context) error {
 	auth := c.Get(util.AuthContextKey).(*util.Claims)
-	db := c.Get(util.DBContextKey).(*gorm.DB)
 
 	var video model.TikTokItem
 	c.Bind(&video)
 
-	profile, err := h.service.GetUserProfile(auth.User.ID.String())
+	profile, err := h.service.UpdateUserProfileInterests(auth.User.ID, video)
 	if err != nil {
 		return err
-	}
-
-	var titleAndTags []string
-	titleAndTags = append(titleAndTags, util.TokenizeString(video.VideoTitle)...)
-	titleAndTags = append(titleAndTags, video.Tags...)
-
-	// Map to track changes or new interests
-	updatedInterests := make(map[string]*model.Interest)
-
-	// Process the title and tags to update the interests
-	for _, term := range titleAndTags {
-		found := false
-		for i := range profile.Interests {
-			if profile.Interests[i].Term == term {
-				// Increment the interest score
-				profile.Interests[i].WeightedScore++
-				updatedInterests[term] = &profile.Interests[i]
-				found = true
-				break
-			}
-		}
-		// If term not found in profile, add as a new interest
-		if !found {
-			newInterest := model.Interest{
-				Term:          term,
-				WeightedScore: 1,
-				UserProfileID: profile.ID,
-			}
-			// Add the new interest to the map and profile
-			updatedInterests[term] = &newInterest
-			profile.Interests = append(profile.Interests, newInterest)
-		}
-	}
-
-	// Update the user profile with the modified interests in the database
-	if err := db.Transaction(func(tx *gorm.DB) error {
-		// Update the profile itself
-		if err := tx.Save(&profile).Error; err != nil {
-			return err
-		}
-
-		// Update or insert interests
-		for _, interest := range updatedInterests {
-			if err := tx.Save(interest).Error; err != nil {
-				return err
-			}
-		}
-
-		return nil
-	}); err != nil {
-		return util.SendResponse(c, http.StatusInternalServerError, false, "Failed to update profile in DB", nil)
 	}
 
 	return util.SendResponse(c, http.StatusOK, true, "Scucess update profile", profile)
@@ -178,19 +128,36 @@ func (h userHandler) updateUserProfile(c echo.Context) error {
 }
 
 func (h userHandler) createGuestUser(c echo.Context) error {
-	var user model.User
-	c.Bind(&user)
-
-	if err := c.Validate(user); err != nil {
-		return err
+	createUser := model.User{
+		Name:     fmt.Sprintf("guest-%s", uuid.NewV4().String()),
+		Email:    fmt.Sprintf("guest-%s@mail.com", uuid.NewV4().String()),
+		Password: uuid.NewV4().String(),
+		IsGuest:  true,
 	}
 
-	user, err := h.service.Create(user)
+	user, err := h.service.Create(createUser)
 	if err != nil {
 		return err
 	}
 
-	return util.SendResponse(c, http.StatusOK, true, "Success create user", user)
+	newProfile := model.UserProfile{
+		UserID: user.ID,
+	}
+
+	_, err = h.service.CreateUserProfile(newProfile)
+	if err != nil {
+		return err
+	}
+
+	accessToken, err := util.GenerateAccessToken(&user, c)
+	if err != nil {
+		return err
+	}
+
+	return util.SendResponse(c, http.StatusOK, true, "Success create guest user", LoginResponseData{
+		Token: accessToken,
+		User:  user,
+	})
 }
 
 func (h userHandler) HandleRoutes(g *echo.Group) {

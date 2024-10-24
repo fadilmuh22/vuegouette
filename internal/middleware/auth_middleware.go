@@ -10,6 +10,28 @@ import (
 	"github.com/fadilmuh22/restskuy/internal/util"
 )
 
+func Guest() echo.MiddlewareFunc {
+	return echojwt.WithConfig(echojwt.Config{
+		NewClaimsFunc: func(c echo.Context) jwt.Claims {
+			return new(util.Claims)
+		},
+		SigningKey:  []byte(util.GetJWTSecret()),
+		TokenLookup: "header:Authorization",
+		ContextKey:  util.JWTContextKey,
+		SuccessHandler: func(c echo.Context) {
+			user := c.Get(util.JWTContextKey).(*jwt.Token)
+			claims := user.Claims.(*util.Claims)
+
+			c.Set(util.AuthContextKey, claims)
+		},
+		ErrorHandler: func(c echo.Context, err error) error {
+			// pass
+			return nil
+		},
+		ContinueOnIgnoredError: true,
+	})
+}
+
 func Auth() echo.MiddlewareFunc {
 	return echojwt.WithConfig(echojwt.Config{
 		NewClaimsFunc: func(c echo.Context) jwt.Claims {

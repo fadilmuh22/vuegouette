@@ -4,12 +4,13 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"log"
 	"time"
 
 	"github.com/chromedp/chromedp"
 	"github.com/fadilmuh22/restskuy/internal/db"
 	"github.com/fadilmuh22/restskuy/internal/model"
+	"github.com/labstack/gommon/log"
+	uuid "github.com/satori/go.uuid"
 
 	"gorm.io/gorm"
 )
@@ -24,7 +25,6 @@ func NewVideoService(db *gorm.DB, resdisClient *db.RedisClient) VideoService {
 }
 
 func (s VideoService) fetchTikTokVideos(keyword string) ([]model.TikTokItem, error) {
-	log.Printf("Fetching keyword: %s\n", keyword)
 	url := fmt.Sprintf("https://www.tiktok.com/search?q=%s", keyword)
 
 	optsAlloc := append(chromedp.DefaultExecAllocatorOptions[:],
@@ -37,7 +37,7 @@ func (s VideoService) fetchTikTokVideos(keyword string) ([]model.TikTokItem, err
 	defer cancel()
 
 	var optsTask []chromedp.ContextOption
-	optsTask = append(optsTask, chromedp.WithDebugf(log.Printf))
+	// optsTask = append(optsTask, chromedp.WithDebugf(log.Printf))
 
 	// Create a new context
 	taskCtx, cancel := chromedp.NewContext(allocCtx, optsTask...)
@@ -60,7 +60,10 @@ func (s VideoService) fetchTikTokVideos(keyword string) ([]model.TikTokItem, err
 					video_title: item.querySelector("div[data-e2e='search-card-video-caption']")?.
 						querySelector("span[class*='SpanText']")?.innerText,
 					video_count: item.querySelector("strong[class*='StrongVideoCount']")?.innerText,
-					tags: Array.from(item.querySelectorAll("a[data-e2e='search-common-link']")).map(tag => tag.href),
+					tags: Array.from(item.querySelectorAll("a[data-e2e='search-common-link']"))
+						.map(tag => tag.href)
+						.filter(tag => tag.includes("/tag"))
+						.map(tag => tag.split("/").pop())
 				};
 			});`, &tiktokItems).Do(ctx)
 		}),
@@ -74,24 +77,34 @@ func (s VideoService) fetchTikTokVideos(keyword string) ([]model.TikTokItem, err
 }
 
 func (s VideoService) FetchTikTokVideosWithCache(keyword string) ([]model.TikTokItem, bool, error) {
+	log.Info("Fetching keywords: ", keyword)
 	cachedVideos, err := s.redisClient.Get(keyword)
 	if err == nil {
 		var cachedItems []model.TikTokItem
 		err := json.Unmarshal([]byte(cachedVideos), &cachedItems)
 		if err == nil && len(cachedItems) > 0 {
-			log.Println("Returning cached videos")
+			log.Info("Returning cached videos")
 			return cachedItems, true, nil
 		}
 	}
 
 	videos, err := s.fetchTikTokVideos(keyword)
 	if err == nil {
+		if len(videos) == 0 {
+			return videos, false, model.NewErrorMessage("No video available at the moment")
+		}
+
+		// Add ID to each video item
+		for i := 0; i < len(videos); i++ {
+			videos[i].ID = uuid.NewV4()
+		}
+
 		// Cache the results in Redis
 		cachedData, err := json.Marshal(videos)
 		if err == nil {
 			err = s.redisClient.Set(keyword, cachedData, 10*time.Minute) // Set expiration as needed
 			if err != nil {
-				log.Println("Error setting cache:", err)
+				log.Debug("Error setting cache:", err)
 			}
 		}
 

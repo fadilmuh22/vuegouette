@@ -15,10 +15,12 @@
     "format": "prettier --write src/"
   },
   "dependencies": {
+    "@mahdikhashan/vue3-click-outside": "^0.1.2",
     "@tanstack/vue-query": "^5.59.13",
     "axios": "^1.7.7",
     "plyr-vue": "^2.6.8",
-    "vue": "^3.5.12"
+    "vue": "^3.5.12",
+    "vue-router": "^4.4.5"
   },
   "devDependencies": {
     "@playwright/test": "^1.48.0",

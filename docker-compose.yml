@@ -44,6 +44,10 @@ services:
         - action: sync+restart
           path: ./web
           target: /web
+          ignore:
+            - node_modules
+        - action: rebuild
+          path: ./web/package.json
     image: node:20-alpine
     volumes:
       - ./web:/web
