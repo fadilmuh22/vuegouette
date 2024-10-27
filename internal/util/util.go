@@ -1,6 +1,7 @@
 package util
 
 import (
+	"fmt"
 	"slices"
 	"strings"
 
@@ -142,4 +143,19 @@ func UpdateInterestsWithSubstrings(profileID uuid.UUID, interests []model.Intere
 	interests = interests[0:5]
 
 	return updatedInterests
+}
+
+func TryGetAuth(c echo.Context) *Claims {
+	defer func() {
+		if r := recover(); r != nil {
+			fmt.Println("Recovered from panic in getAuth:", r)
+		}
+	}()
+
+	if claims, ok := c.Get(AuthContextKey).(*Claims); ok {
+		return claims
+	}
+
+	// Return nil if the type assertion fails
+	return nil
 }

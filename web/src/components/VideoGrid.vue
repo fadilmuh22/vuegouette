@@ -25,14 +25,8 @@
     >
       <VideoPlayer :video="video" />
       <div class="p-1">
-        <h2 class="font-semibold">{{ video.user_name }}</h2>
+        <h2 class="font-semibold">@{{ video.user_name }}</h2>
         <p class="text-gray-500">{{ video.video_count }} views</p>
-        <a
-          :href="video.video_url"
-          target="_blank"
-          class="text-blue-500 hover:underline"
-          >Watch Video</a
-        >
       </div>
     </div>
   </div>

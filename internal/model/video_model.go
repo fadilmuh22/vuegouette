@@ -19,3 +19,8 @@ func (u *TikTokItem) BeforeCreate(tx *gorm.DB) (err error) {
 	u.ID = uuid.NewV4()
 	return
 }
+
+type Pagination struct {
+	Offset int
+	Limit  int
+}

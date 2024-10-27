@@ -1,19 +1,17 @@
 package handler
 
 import (
-	"cmp"
 	"fmt"
 	"io"
 	"net/http"
-	"slices"
 	"strings"
 
 	"github.com/labstack/echo/v4"
+	uuid "github.com/satori/go.uuid"
 	"gorm.io/gorm"
 
 	"github.com/fadilmuh22/restskuy/internal/db"
 	"github.com/fadilmuh22/restskuy/internal/middleware"
-	"github.com/fadilmuh22/restskuy/internal/model"
 	"github.com/fadilmuh22/restskuy/internal/service"
 	"github.com/fadilmuh22/restskuy/internal/util"
 )
@@ -24,16 +22,23 @@ type videoHandler struct {
 }
 
 func NewVideoHandler(db *gorm.DB, redisClient *db.RedisClient) Handler {
-	return videoHandler{
+	return &videoHandler{
 		videoService: service.NewVideoService(db, redisClient),
 		userService:  service.NewUserService(db),
 	}
 }
 
-func (h videoHandler) getAllTikTokVideos(c echo.Context) error {
+func (h *videoHandler) searchTikTokVideos(c echo.Context) error {
 	keyword := c.QueryParam("keyword")
 
-	videos, cached, err := h.videoService.FetchTikTokVideosWithCache(keyword)
+	auth := util.TryGetAuth(c)
+	userID := auth.User.ID.String()
+
+	if auth == nil {
+		userID = fmt.Sprint("guest-", uuid.NewV4().String())
+	}
+
+	videos, cached, err := h.videoService.FetchTikTokVideosWithCache(userID, keyword)
 	if err != nil {
 		return err
 	}
@@ -43,34 +48,23 @@ func (h videoHandler) getAllTikTokVideos(c echo.Context) error {
 	return util.SendResponse(c, http.StatusOK, true, message, videos)
 }
 
-func (h videoHandler) getPersonalizedTiktokVideos(c echo.Context) error {
-	var auth *util.Claims
+func (h *videoHandler) getPersonalizedTiktokVideos(c echo.Context) error {
 	var keywords []string
 
-	if c.Get(util.AuthContextKey) != nil {
-		auth = c.Get(util.AuthContextKey).(*util.Claims)
+	auth := util.TryGetAuth(c)
+	userID := auth.User.ID.String()
 
-		profile, err := h.userService.GetUserProfile(auth.User.ID.String())
-		if err == nil {
-			if profile.Interests != nil && len(profile.Interests) > 0 {
-				interestRanked := profile.Interests
-
-				slices.SortFunc(interestRanked, func(a, b model.Interest) int {
-					return cmp.Compare(a.WeightedScore, b.WeightedScore)
-				})
-
-				for _, interest := range interestRanked[0:4] {
-					keywords = append(keywords, interest.Term)
-				}
-			}
-		}
+	if auth == nil {
+		userID = fmt.Sprint("guest-", uuid.NewV4().String())
+	} else {
+		keywords = append(keywords, h.userService.GetUserProfileKeywords(userID)...)
 	}
 
 	if len(keywords) == 0 {
 		keywords = append(keywords, "trending")
 	}
 
-	videos, cached, err := h.videoService.FetchTikTokVideosWithCache(strings.Join(keywords, "+"))
+	videos, cached, err := h.videoService.FetchTikTokVideosWithCache(userID, strings.Join(keywords, "+"))
 	if err != nil {
 		return err
 	}
@@ -89,7 +83,7 @@ func fetchVideoLink(c echo.Context) error {
 	// Send the POST request to the external API
 	req, err := http.NewRequest("POST", "https://ttsave.app/download", io.NopCloser(strings.NewReader(requestBody)))
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, echo.Map{"error": "Failed to create request"})
+		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to create request")
 	}
 	req.Header.Set("Content-Type", "application/json")
 
@@ -97,25 +91,25 @@ func fetchVideoLink(c echo.Context) error {
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, echo.Map{"error": "Failed to fetch data"})
+		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to fetch data")
 	}
 	defer resp.Body.Close()
 
 	// Read the response from the external API
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, echo.Map{"error": "Failed to read response"})
+		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to read response")
 	}
 
 	// Return the API response as-is
 	return util.SendResponse(c, http.StatusOK, true, "Fetched from API", string(body))
 }
 
-func (h videoHandler) HandleRoutes(g *echo.Group) {
+func (h *videoHandler) HandleRoutes(g *echo.Group) {
 	video := g.Group("/video")
 	{
-		video.GET("", h.getAllTikTokVideos)
+		video.GET("", h.searchTikTokVideos, middleware.Guest())
 		video.GET("/personalized", h.getPersonalizedTiktokVideos, middleware.Guest())
-		video.GET("/fetch-video", fetchVideoLink)
+		video.GET("/fetch-video", fetchVideoLink, middleware.Guest())
 	}
 }

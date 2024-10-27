@@ -1,6 +1,9 @@
 package service
 
 import (
+	"cmp"
+	"slices"
+
 	"github.com/fadilmuh22/restskuy/internal/model"
 	"github.com/fadilmuh22/restskuy/internal/util"
 	"github.com/labstack/gommon/log"
@@ -95,6 +98,27 @@ func (s UserService) GetUserProfile(userID string) (model.UserProfile, error) {
 	return profile, nil
 }
 
+func (s UserService) GetUserProfileKeywords(userID string) []string {
+	var keywords []string
+
+	profile, err := s.GetUserProfile(userID)
+	if err == nil {
+		if profile.Interests != nil && len(profile.Interests) > 0 {
+			interestRanked := profile.Interests
+
+			slices.SortFunc(interestRanked, func(a, b model.Interest) int {
+				return cmp.Compare(a.WeightedScore, b.WeightedScore)
+			})
+
+			for _, interest := range interestRanked[0:4] {
+				keywords = append(keywords, interest.Term)
+			}
+		}
+	}
+
+	return keywords
+}
+
 func (s UserService) CreateUserProfile(profile model.UserProfile) (model.UserProfile, error) {
 	err := s.db.Create(&profile).Error
 	if err != nil {
@@ -134,7 +158,6 @@ func (s UserService) UpdateUserProfileInterests(userID uuid.UUID, video model.Ti
 			var existingInterest model.Interest
 			tx.Where("term = ? AND user_profile_id = ?", interest.Term, profile.ID).Limit(1).Find(&existingInterest)
 
-			log.Info("Existing interest", existingInterest, interest)
 			if (model.Interest{} == existingInterest) {
 				if err := tx.Create(&interest).Error; err != nil {
 					return err

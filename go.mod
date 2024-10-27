@@ -26,6 +26,9 @@ require (
 	github.com/gobwas/httphead v0.1.0 // indirect
 	github.com/gobwas/pool v0.2.1 // indirect
 	github.com/gobwas/ws v1.4.0 // indirect
+	github.com/gofrs/uuid v4.0.0+incompatible // indirect
+	github.com/gomodule/redigo v1.8.4 // indirect
+	github.com/gorilla/websocket v1.4.2 // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect
 	github.com/jackc/pgservicefile v0.0.0-20221227161230-091c0ba34f0a // indirect
 	github.com/jackc/pgx/v5 v5.3.1 // indirect
@@ -58,6 +61,7 @@ require (
 	github.com/go-redis/redis/v8 v8.11.5
 	github.com/go-rod/rod v0.116.2
 	github.com/go-sql-driver/mysql v1.7.0 // indirect
+	github.com/googollee/go-socket.io v1.7.0
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/jdkato/prose/v2 v2.0.0
 	github.com/jinzhu/inflection v1.0.0 // indirect

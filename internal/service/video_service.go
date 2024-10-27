@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"sync"
 	"time"
 
 	"github.com/chromedp/chromedp"
@@ -15,38 +16,70 @@ import (
 	"gorm.io/gorm"
 )
 
+type userContext struct {
+	ctx      context.Context
+	cancel   context.CancelFunc
+	lastUsed time.Time
+}
+
 type VideoService struct {
-	db          *gorm.DB
-	redisClient *db.RedisClient
+	db           *gorm.DB
+	redisClient  *db.RedisClient
+	userContexts map[string]*userContext // Maps userID to Chromedp context
+	mutex        sync.Mutex              // Protects userContexts map
+	expireAfter  time.Duration           // Duration to wait before expiring a context
 }
 
-func NewVideoService(db *gorm.DB, resdisClient *db.RedisClient) VideoService {
-	return VideoService{db: db, redisClient: resdisClient}
+func NewVideoService(db *gorm.DB, redisClient *db.RedisClient) VideoService {
+	return VideoService{
+		db:           db,
+		redisClient:  redisClient,
+		userContexts: make(map[string]*userContext),
+		expireAfter:  10 * time.Minute,
+	}
 }
 
-func (s VideoService) fetchTikTokVideos(keyword string) ([]model.TikTokItem, error) {
-	url := fmt.Sprintf("https://www.tiktok.com/search?q=%s", keyword)
+func (s *VideoService) getOrCreateUserContext(userID string) (context.Context, error) {
+	s.mutex.Lock()
+	defer s.mutex.Unlock()
 
+	log.Infof("Reusing existing context for user %s", userID, s.userContexts[userID])
+	// Check if context already exists for the user
+	if uCtx, exists := s.userContexts[userID]; exists {
+		return uCtx.ctx, nil
+	}
+
+	// Create new Chromedp context for the user
 	optsAlloc := append(chromedp.DefaultExecAllocatorOptions[:],
 		chromedp.UserAgent(`Mozilla/5.0 (Windows NT 6.3; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.103 Safari/537.36`),
-		chromedp.Flag(`headless`, true),
+		chromedp.Flag("headless", true),
 		chromedp.DisableGPU,
 	)
+	allocCtx, _ := chromedp.NewExecAllocator(context.Background(), optsAlloc...)
+	taskCtx, cancel := chromedp.NewContext(allocCtx)
 
-	allocCtx, cancel := chromedp.NewExecAllocator(context.Background(), optsAlloc...)
-	defer cancel()
+	// Store the context with expiration handling
+	s.userContexts[userID] = &userContext{
+		ctx:      taskCtx,
+		cancel:   cancel,
+		lastUsed: time.Now(),
+	}
+	return taskCtx, nil
+}
 
-	var optsTask []chromedp.ContextOption
-	// optsTask = append(optsTask, chromedp.WithDebugf(log.Printf))
+func (s *VideoService) fetchTikTokVideos(userID, keyword string) ([]model.TikTokItem, error) {
+	url := fmt.Sprintf("https://www.tiktok.com/search?q=%s", keyword)
 
-	// Create a new context
-	taskCtx, cancel := chromedp.NewContext(allocCtx, optsTask...)
-	defer cancel()
+	// Get or create user-specific Chromedp context
+	taskCtx, err := s.getOrCreateUserContext(userID)
+	if err != nil {
+		return nil, err
+	}
 
 	var tiktokItems []model.TikTokItem
 
 	// Run the tasks
-	err := chromedp.Run(taskCtx,
+	err = chromedp.Run(taskCtx,
 		chromedp.Navigate(url),
 		chromedp.WaitVisible("#main-content-general_search", chromedp.ByID), // Wait for specific element to be visible
 		chromedp.Sleep(3*time.Second),                                       // Wait for 2 seconds
@@ -76,7 +109,7 @@ func (s VideoService) fetchTikTokVideos(keyword string) ([]model.TikTokItem, err
 	return tiktokItems, nil
 }
 
-func (s VideoService) FetchTikTokVideosWithCache(keyword string) ([]model.TikTokItem, bool, error) {
+func (s *VideoService) FetchTikTokVideosWithCache(userID, keyword string) ([]model.TikTokItem, bool, error) {
 	log.Info("Fetching keywords: ", keyword)
 	cachedVideos, err := s.redisClient.Get(keyword)
 	if err == nil {
@@ -88,7 +121,7 @@ func (s VideoService) FetchTikTokVideosWithCache(keyword string) ([]model.TikTok
 		}
 	}
 
-	videos, err := s.fetchTikTokVideos(keyword)
+	videos, err := s.fetchTikTokVideos(userID, keyword)
 	if err == nil {
 		if len(videos) == 0 {
 			return videos, false, model.NewErrorMessage("No video available at the moment")
@@ -111,4 +144,21 @@ func (s VideoService) FetchTikTokVideosWithCache(keyword string) ([]model.TikTok
 		return videos, false, nil
 	}
 	return videos, false, err
+}
+
+func (s *VideoService) cleanupExpiredContexts() {
+	ticker := time.NewTicker(5 * time.Minute) // Run cleanup every 5 minutes
+	defer ticker.Stop()
+
+	for range ticker.C {
+		s.mutex.Lock()
+		for userID, uCtx := range s.userContexts {
+			if time.Since(uCtx.lastUsed) > s.expireAfter {
+				uCtx.cancel() // Close the context
+				delete(s.userContexts, userID)
+				log.Infof("Expired Chromedp context for user: %s", userID)
+			}
+		}
+		s.mutex.Unlock()
+	}
 }

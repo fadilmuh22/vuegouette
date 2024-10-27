@@ -1,4 +1,5 @@
 import type { TikTokItem } from '@/types'
+import { isAccessTokenEmpty } from '@/utils'
 import {
   useMutation,
   useQuery,
@@ -45,7 +46,9 @@ export const useSearchVideoQuery = (
     queryKey: [VideoQueryKey, 'search', searchText],
     enabled: false,
     queryFn: async () => {
-      if (searchText.value.length < 3) return Promise.resolve([])
+      if (searchText.value.length < 3) return Promise.reject([])
+
+      if (isAccessTokenEmpty()) return Promise.reject([])
 
       const response = await apiClient.get<BaseResponse<TikTokItem[]>>(
         `/video?keyword=${searchText.value}`,
@@ -62,6 +65,8 @@ export const usePresonalizedVideoQuery = (): UseQueryReturnType<
   return useQuery({
     queryKey: [VideoQueryKey, 'personalized'],
     queryFn: async () => {
+      if (isAccessTokenEmpty()) return Promise.reject([])
+
       const response =
         await apiClient.get<BaseResponse<TikTokItem[]>>(`/video/personalized`)
       return response.data.data
