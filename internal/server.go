@@ -63,6 +63,9 @@ func StartServer() {
 	e.Use(middleware.DBMiddleware(postgreDB))
 	e.Use(middleware.RedisMiddleware(redisClient))
 	e.Use(middleware.TransformErrorResponse)
+	e.Use(echomiddleware.CORSWithConfig(echomiddleware.CORSConfig{
+		AllowOrigins: []string{"*"},
+	}))
 
 	// Validator
 	var err error

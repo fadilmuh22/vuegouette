@@ -3,6 +3,7 @@ package handler
 import (
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/labstack/echo/v4"
 	uuid "github.com/satori/go.uuid"
@@ -160,6 +161,22 @@ func (h userHandler) createGuestUser(c echo.Context) error {
 	})
 }
 
+func (h userHandler) getUserProfileKeyword(c echo.Context) error {
+	var userID string
+
+	auth := util.TryGetAuth(c)
+
+	if auth == nil {
+		userID = fmt.Sprint("guest-", uuid.NewV4().String())
+	} else {
+		userID = auth.User.ID.String()
+	}
+
+	keywords := h.service.GetUserProfileKeywords(userID)
+
+	return util.SendResponse(c, http.StatusOK, true, "Success get user profile keyword", strings.Join(keywords, "+"))
+}
+
 func (h userHandler) HandleRoutes(g *echo.Group) {
 	user := g.Group("/user")
 	{
@@ -171,5 +188,6 @@ func (h userHandler) HandleRoutes(g *echo.Group) {
 
 		user.POST("/guest", h.createGuestUser)
 		user.PUT("/profile", h.updateUserProfile, middleware.Auth())
+		user.GET("/keyword", h.getUserProfileKeyword, middleware.Guest())
 	}
 }

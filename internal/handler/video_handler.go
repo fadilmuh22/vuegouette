@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"strconv"
 	"strings"
 
 	"github.com/labstack/echo/v4"
@@ -29,16 +30,24 @@ func NewVideoHandler(db *gorm.DB, redisClient *db.RedisClient) Handler {
 }
 
 func (h *videoHandler) searchTikTokVideos(c echo.Context) error {
+	var userID string
+
 	keyword := c.QueryParam("keyword")
+	page := c.QueryParam("page")
+	pageSize := c.QueryParam("pageSize")
+
+	pageNum, _ := strconv.Atoi(util.IfThenElse(page == "", "1", page).(string))
+	pageSizeNum, _ := strconv.Atoi(util.IfThenElse(pageSize == "", "10", pageSize).(string))
 
 	auth := util.TryGetAuth(c)
-	userID := auth.User.ID.String()
 
 	if auth == nil {
 		userID = fmt.Sprint("guest-", uuid.NewV4().String())
+	} else {
+		userID = auth.User.ID.String()
 	}
 
-	videos, cached, err := h.videoService.FetchTikTokVideosWithCache(userID, keyword)
+	videos, cached, err := h.videoService.FetchTikTokVideosWithCache(userID, keyword, pageNum, pageSizeNum)
 	if err != nil {
 		return err
 	}
@@ -49,22 +58,28 @@ func (h *videoHandler) searchTikTokVideos(c echo.Context) error {
 }
 
 func (h *videoHandler) getPersonalizedTiktokVideos(c echo.Context) error {
-	var keywords []string
+	var userID string
+
+	keyword := c.QueryParam("keyword")
+	page := c.QueryParam("page")
+	pageSize := c.QueryParam("pageSize")
+
+	pageNum, _ := strconv.Atoi(util.IfThenElse(page == "", "1", page).(string))
+	pageSizeNum, _ := strconv.Atoi(util.IfThenElse(pageSize == "", "10", pageSize).(string))
 
 	auth := util.TryGetAuth(c)
-	userID := auth.User.ID.String()
 
 	if auth == nil {
 		userID = fmt.Sprint("guest-", uuid.NewV4().String())
 	} else {
-		keywords = append(keywords, h.userService.GetUserProfileKeywords(userID)...)
+		userID = auth.User.ID.String()
 	}
 
-	if len(keywords) == 0 {
-		keywords = append(keywords, "trending")
+	if keyword == "" {
+		keyword = "trending"
 	}
 
-	videos, cached, err := h.videoService.FetchTikTokVideosWithCache(userID, strings.Join(keywords, "+"))
+	videos, cached, err := h.videoService.FetchTikTokVideosWithCache(userID, keyword, pageNum, pageSizeNum)
 	if err != nil {
 		return err
 	}

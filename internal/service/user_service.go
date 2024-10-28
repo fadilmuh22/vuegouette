@@ -143,12 +143,10 @@ func (s UserService) UpdateUserProfileInterests(userID uuid.UUID, video model.Ti
 		return profile, err
 	}
 
-	titleAndTags := util.TokenizeTikokItem(video)
+	videoTags := util.TokenizeTikokItem(video)
 
 	// Map to track changes or new interests
-	updatedInterests := util.UpdateInterestsWithSubstrings(profile.ID, profile.Interests, titleAndTags)
-
-	log.Info("Updated interests", updatedInterests)
+	updatedInterests := util.UpdateInterestsWithSubstrings(profile.ID, profile.Interests, videoTags)
 
 	// Update the user profile with the modified interests in the database
 	if err := s.db.Transaction(func(tx *gorm.DB) error {

@@ -6,7 +6,6 @@ import (
 	"strings"
 
 	"github.com/labstack/echo/v4"
-	"github.com/labstack/gommon/log"
 	uuid "github.com/satori/go.uuid"
 	"golang.org/x/crypto/bcrypt"
 
@@ -70,9 +69,8 @@ func DictContainWithSubstring(dict []string, text string) bool {
 }
 
 func TokenizeTikokItem(video model.TikTokItem) []string {
-	var titleAndTags []string
-	titleAndTags = append(titleAndTags, TokenizeString(video.VideoTitle)...)
-	titleAndTags = append(titleAndTags, Map(video.Tags, func(tag string) string {
+	var videoTags []string
+	videoTags = append(videoTags, Map(video.Tags, func(tag string) string {
 		return strings.ToLower(tag)
 	})...)
 
@@ -85,19 +83,17 @@ func TokenizeTikokItem(video model.TikTokItem) []string {
 	}
 
 	// sanitize title and tags
-	var sanitizedTitleAndTags []string
+	var sanitizeVideoTags []string
 
-	for i := range titleAndTags {
-		if len(titleAndTags[i]) < 3 || DictContainWithSubstring(dicts, titleAndTags[i]) {
+	for i := range videoTags {
+		if len(videoTags[i]) < 3 || DictContainWithSubstring(dicts, videoTags[i]) {
 			continue
 		}
 
-		sanitizedTitleAndTags = append(sanitizedTitleAndTags, titleAndTags[i])
+		sanitizeVideoTags = append(sanitizeVideoTags, videoTags[i])
 	}
 
-	log.Info("Sanitized title and tags: ", sanitizedTitleAndTags, titleAndTags)
-
-	return sanitizedTitleAndTags
+	return sanitizeVideoTags
 }
 
 func UpdateInterestsWithSubstrings(profileID uuid.UUID, interests []model.Interest, titleAndTags []string) map[string]model.Interest {
@@ -136,8 +132,6 @@ func UpdateInterestsWithSubstrings(profileID uuid.UUID, interests []model.Intere
 	slices.SortFunc(interests, func(a, b model.Interest) int {
 		return int(b.WeightedScore - a.WeightedScore)
 	})
-
-	log.Info("Sorted interests: ", interests)
 
 	// keep upper 5
 	interests = interests[0:5]

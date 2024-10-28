@@ -30,3 +30,11 @@ func (r *RedisClient) Set(key string, value interface{}, expiration time.Duratio
 func (r *RedisClient) Get(key string) (string, error) {
 	return r.Client.Get(ctx, key).Result()
 }
+
+func (r *RedisClient) SIsMember(key string, member interface{}) *redis.BoolCmd {
+	return r.Client.SIsMember(ctx, key, member)
+}
+
+func (r *RedisClient) SAdd(key string, members ...interface{}) *redis.IntCmd {
+	return r.Client.SAdd(ctx, key, members...)
+}

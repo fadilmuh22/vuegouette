@@ -1,6 +1,7 @@
 import type { TikTokItem } from '@/types'
 import { isAccessTokenEmpty } from '@/utils'
 import {
+  useInfiniteQuery,
   useMutation,
   useQuery,
   type UseMutationReturnType,
@@ -10,7 +11,7 @@ import type { AxiosError } from 'axios'
 import axios from 'axios'
 import type { Ref } from 'vue'
 
-export const BASE_URL = 'http://localhost:1323/api'
+export const BASE_URL = 'http://0.0.0.0:1323/api'
 
 export const VideoQueryKey = 'video'
 
@@ -39,39 +40,67 @@ apiClient.interceptors.request.use(config => {
   return config
 })
 
-export const useSearchVideoQuery = (
-  searchText: Ref<string>,
-): UseQueryReturnType<TikTokItem[], AxiosError> => {
-  return useQuery({
-    queryKey: [VideoQueryKey, 'search', searchText],
-    enabled: false,
-    queryFn: async () => {
-      if (searchText.value.length < 3) return Promise.reject([])
+export const VIDEOS_PER_PAGE = 11
 
+export const useSearchVideos = (searchTerm: Ref<string>) => {
+  return useInfiniteQuery({
+    queryKey: ['videos', 'search', searchTerm],
+    initialPageParam: 1,
+    enabled: false,
+    queryFn: async ({ pageParam }) => {
+      if (searchTerm.value.length < 3) return Promise.reject([])
       if (isAccessTokenEmpty()) return Promise.reject([])
 
       const response = await apiClient.get<BaseResponse<TikTokItem[]>>(
-        `/video?keyword=${searchText.value}`,
+        '/video',
+        {
+          params: {
+            keyword: searchTerm.value,
+            page: pageParam,
+            pageSize: VIDEOS_PER_PAGE,
+          },
+        },
       )
-      return response.data.data
+
+      if (response.data.data == null) {
+        return Promise.reject([])
+      }
+
+      return response.data.data // Return the video items
+    },
+    getNextPageParam: (lastPage, pages) => {
+      return lastPage.length === VIDEOS_PER_PAGE ? pages.length + 1 : undefined
     },
   })
 }
 
-export const usePresonalizedVideoQuery = (): UseQueryReturnType<
-  TikTokItem[],
-  AxiosError
-> => {
-  return useQuery({
-    queryKey: [VideoQueryKey, 'personalized'],
-    queryFn: async () => {
+export const usePersonalizedVideos = () => {
+  return useInfiniteQuery({
+    queryKey: ['videos', 'personalized'],
+    initialPageParam: 1,
+    queryFn: async ({ pageParam }) => {
       if (isAccessTokenEmpty()) return Promise.reject([])
 
-      const response =
-        await apiClient.get<BaseResponse<TikTokItem[]>>(`/video/personalized`)
-      return response.data.data
+      const response = await apiClient.get<BaseResponse<TikTokItem[]>>(
+        '/video/personalized',
+        {
+          params: {
+            keyword: localStorage.getItem('keyword'),
+            page: pageParam,
+            pageSize: VIDEOS_PER_PAGE,
+          },
+        },
+      )
+
+      if (response.data.data == null) {
+        return Promise.reject([])
+      }
+
+      return response.data.data // Return the video items
     },
-    staleTime: 0,
+    getNextPageParam: (lastPage, pages) => {
+      return lastPage.length === VIDEOS_PER_PAGE ? pages.length + 1 : undefined
+    },
   })
 }
 
@@ -92,12 +121,7 @@ export const useUpdaUserProfile = (): UseMutationReturnType<
   })
 }
 
-export const useCreateGuestUser = (): UseMutationReturnType<
-  BaseResponse<never>,
-  AxiosError,
-  unknown,
-  unknown
-> => {
+export const useCreateGuestUser = () => {
   return useMutation({
     mutationFn: async () => {
       const accessToken = localStorage.getItem('access_token')
@@ -116,6 +140,22 @@ export const useCreateGuestUser = (): UseMutationReturnType<
       }
 
       return response.data
+    },
+  })
+}
+
+export const useGetUserProfileKeyword = () => {
+  return useMutation({
+    mutationFn: async () => {
+      const response =
+        await apiClient.get<BaseResponse<string>>(`/user/keyword`)
+
+      if (response.data.data.length) {
+        localStorage.setItem('keyword', response.data.data)
+      } else {
+        localStorage.setItem('keyword', 'trending')
+      }
+      return response.data.data
     },
   })
 }
