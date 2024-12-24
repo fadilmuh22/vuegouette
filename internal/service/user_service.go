@@ -2,6 +2,7 @@ package service
 
 import (
 	"cmp"
+	"fmt"
 	"slices"
 
 	"github.com/fadilmuh22/restskuy/internal/model"
@@ -98,6 +99,19 @@ func (s UserService) GetUserProfile(userID string) (model.UserProfile, error) {
 	return profile, nil
 }
 
+func (s UserService) SaveUserProfile(profile *model.UserProfile) error {
+	// Update the user profile in the database
+	// Use Save or Update method depending on your use case
+	// If the profile already exists, it will update the existing one
+	// Otherwise, it will insert a new record
+	err := s.db.Save(profile).Error
+	if err != nil {
+		return fmt.Errorf("could not save user profile: %w", err)
+	}
+	return nil
+}
+
+
 func (s UserService) GetUserProfileKeywords(userID string) []string {
 	var keywords []string
 
@@ -118,6 +132,37 @@ func (s UserService) GetUserProfileKeywords(userID string) []string {
 
 	return keywords
 }
+
+func (s UserService) DeleteUserProfileKeywords(userID string, keywordsToDelete []string) ([]string, error) {
+	var updatedKeywords []string
+
+	// Fetch the user profile
+	profile, err := s.GetUserProfile(userID)
+	if err != nil {
+		return nil, fmt.Errorf("could not find user profile: %w", err)
+	}
+
+	// Loop through the list of keywords to delete
+	for _, keyword := range keywordsToDelete {
+		// Check if the interest exists for this user and delete it
+		var interest model.Interest
+		err := s.db.Where("user_profile_id = ? AND term = ?", profile.ID, keyword).First(&interest).Error
+		if err == nil {
+			// If the interest exists, delete it
+			if deleteErr := s.db.Delete(&interest).Error; deleteErr != nil {
+				return nil, fmt.Errorf("failed to delete interest: %w", deleteErr)
+			}
+		} else if err != gorm.ErrRecordNotFound {
+			// If the error is not "record not found", return it
+			return nil, fmt.Errorf("failed to check interest: %w", err)
+		}
+	}
+
+	updatedKeywords = append(updatedKeywords, s.GetUserProfileKeywords(userID)...)
+
+	return updatedKeywords, nil
+}
+
 
 func (s UserService) CreateUserProfile(profile model.UserProfile) (model.UserProfile, error) {
 	err := s.db.Create(&profile).Error

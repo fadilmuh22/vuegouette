@@ -1,7 +1,7 @@
 <template>
   <div class="dark:bg-neutral-light dark:text-white min-h-screen">
     <div class="container lg:p-4 mx-auto">
-      <div class="sm:mx-3 lg:mx-80">
+      <div class="sm:mx-3 lg:mx-60">
         <div class="flex justify-center">
           <h1 class="text-2xl font-bold mb-4 text-onbackground">
             TikTok Search

@@ -177,17 +177,44 @@ func (h userHandler) getUserProfileKeyword(c echo.Context) error {
 	return util.SendResponse(c, http.StatusOK, true, "Success get user profile keyword", strings.Join(keywords, "+"))
 }
 
+func (h userHandler) deleteUserProfileKeyword(c echo.Context) error {
+	auth := c.Get(util.AuthContextKey).(*util.Claims)
+
+	// Parse the request body to get the keywords (you can modify this based on your frontend format)
+	var requestBody struct {
+		Keywords string `json:"keywords"` // This should be the list of keywords separated by '+'
+	}
+	if err := c.Bind(&requestBody); err != nil {
+		return util.SendResponse(c, http.StatusBadRequest, false, "Invalid request body", nil)
+	}
+
+	// Split the keywords by '+' and save them
+	keywords := strings.Split(requestBody.Keywords, "+")
+
+	// Call your service to update the keywords (implement the UpdateUserProfileKeywords method in your service layer)
+	updatedKeywords, err := h.service.DeleteUserProfileKeywords(auth.User.ID.String(), keywords)
+	if err != nil {
+		return util.SendResponse(c, http.StatusInternalServerError, false, "Failed to update keywords", nil)
+	}
+
+	// Respond with the updated keywords
+	return util.SendResponse(c, http.StatusOK, true, "Successfully updated user profile keywords", strings.Join(updatedKeywords, "+"))
+}
+
+
 func (h userHandler) HandleRoutes(g *echo.Group) {
 	user := g.Group("/user")
 	{
+		user.POST("/guest", h.createGuestUser)
+		user.PUT("/profile", h.updateUserProfile, middleware.Auth())
+		user.GET("/keyword", h.getUserProfileKeyword, middleware.Guest())
+		user.POST("/keyword", h.deleteUserProfileKeyword, middleware.Auth())
+
 		user.GET("", h.getAllUser)
 		user.GET("/:id", h.getUser)
 		user.POST("", h.createUser, middleware.Auth(), middleware.Admin)
 		user.PUT("/:id", h.updateUser, middleware.Auth(), middleware.Admin)
 		user.DELETE("/:id", h.deleteUser, middleware.Auth(), middleware.Admin)
 
-		user.POST("/guest", h.createGuestUser)
-		user.PUT("/profile", h.updateUserProfile, middleware.Auth())
-		user.GET("/keyword", h.getUserProfileKeyword, middleware.Guest())
 	}
 }

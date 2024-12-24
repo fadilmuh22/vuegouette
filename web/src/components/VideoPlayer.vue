@@ -16,7 +16,6 @@
         playsinline
         :autoplay="isFullscreen"
         :muted="!isFullscreen"
-        class="h-full w-full object-cover rounded-md"
         :src="videoLink"
       ></video>
     </PlyrVue>
@@ -51,7 +50,7 @@ const { data: videoLink, isLoading } = useFetchVideoLink(video.video_url)
 const handleMouseOver = () => {
   if (isLoading.value) return
   if (!isFullscreen) {
-    videoPlayerInstance.value.volume = 0
+    videoPlayerInstance.value.volume = 5
     videoPlayerInstance.value.play()
   }
 }

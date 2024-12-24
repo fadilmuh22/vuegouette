@@ -1,7 +1,7 @@
 <template>
   <div class="dark:bg-neutral-light dark:text-white min-h-screen">
     <div class="container mx-auto lg:p-4 dark:bg-dark-900">
-      <div class="sm:mx-3 lg:mx-80">
+      <div class="sm:mx-3 lg:mx-60">
         <VideoGrid
           :videos
           :isLoading="isLoading || isFetchingNextPage"

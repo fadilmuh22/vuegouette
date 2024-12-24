@@ -38,17 +38,6 @@
               to="/"
               class="flex items-center p-2 text-neutral-light rounded-lg dark:text-white hover:bg-gray-500 dark:hover:bg-gray-700 group"
             >
-              <svg
-                class="flex-shrink-0 w-5 h-5 text-neutral-light transition duration-75 dark:text-gray-400 group-hover:neutral-light dark:group-hover:text-white"
-                aria-hidden="true"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="currentColor"
-                viewBox="0 0 18 18"
-              >
-                <path
-                  d="M6.143 0H1.857A1.857 1.857 0 0 0 0 1.857v4.286C0 7.169.831 8 1.857 8h4.286A1.857 1.857 0 0 0 8 6.143V1.857A1.857 1.857 0 0 0 6.143 0Zm10 0h-4.286A1.857 1.857 0 0 0 10 1.857v4.286C10 7.169 10.831 8 11.857 8h4.286A1.857 1.857 0 0 0 18 6.143V1.857A1.857 1.857 0 0 0 16.143 0Zm-10 10H1.857A1.857 1.857 0 0 0 0 11.857v4.286C0 17.169.831 18 1.857 18h4.286A1.857 1.857 0 0 0 8 16.143v-4.286A1.857 1.857 0 0 0 6.143 10Zm10 0h-4.286A1.857 1.857 0 0 0 10 11.857v4.286c0 1.026.831 1.857 1.857 1.857h4.286A1.857 1.857 0 0 0 18 16.143v-4.286A1.857 1.857 0 0 0 16.143 10Z"
-                ></path>
-              </svg>
               <span class="ms-3">Personalized</span>
             </RouterLink>
           </li>
@@ -57,23 +46,45 @@
               to="/search"
               class="flex items-center p-2 text-neutral-light rounded-lg dark:text-white hover:bg-gray-500 dark:hover:bg-gray-700 group"
             >
-              <svg
-                class="flex-shrink-0 w-5 h-5 text-neutral-light transition duration-75 dark:text-gray-400 group-hover:neutral-light dark:group-hover:text-white"
-                width="20"
-                height="20"
-                viewBox="0 0 20 20"
-              >
-                <path
-                  d="M14.386 14.386l4.0877 4.0877-4.0877-4.0877c-2.9418 2.9419-7.7115 2.9419-10.6533 0-2.9419-2.9418-2.9419-7.7115 0-10.6533 2.9418-2.9419 7.7115-2.9419 10.6533 0 2.9419 2.9418 2.9419 7.7115 0 10.6533z"
-                  stroke="currentColor"
-                  fill="none"
-                  fill-rule="evenodd"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                ></path>
-              </svg>
               <span class="ms-3">Search</span>
             </RouterLink>
+          </li>
+          <li>
+            <div class="text-neutral-light font-medium mt-4">Manage Keywords</div>
+            <div class="flex flex-wrap gap-2 mt-2">
+              <span
+                v-for="(keyword, index) in keywords"
+                :key="index"
+                class="flex items-center justify-between bg-gray-300 text-black py-1 px-2 rounded-lg"
+              >
+                <span>{{ keyword }}</span>
+                <button
+                  type="button"
+                  class="ml-2 text-red-500"
+                  @click="removeKeyword(keyword)"
+                >
+                  &#10005;
+                </button>
+              </span>
+            </div>
+
+            <!-- Save and Cancel Buttons -->
+            <div class="mt-4">
+              <button
+                type="button"
+                class="ml-2 px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600"
+                @click="saveKeywords"
+              >
+                Save
+              </button>
+              <button
+                type="button"
+                class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+                @click="cancelChanges"
+              >
+                Cancel
+              </button>
+            </div>
           </li>
         </ul>
       </div>
@@ -82,13 +93,23 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 import { clickOutSide as vClickOutSide } from '@mahdikhashan/vue3-click-outside'
 
+import { useDeleteUserProfileKeyword } from '@/api'
+
 const sidebarOpen = ref(false)
+
+// Data store for the sidebar keywords
+const keywords = ref<string[]>([])
+
+// To store the original keywords before editing
+const originalKeywords = ref<string[]>([])
+
+const { mutate: deleteUserProfileKeyword } = useDeleteUserProfileKeyword()
 
 function toggleSidebar() {
   sidebarOpen.value = !sidebarOpen.value
@@ -97,4 +118,45 @@ function toggleSidebar() {
 const handleClickOutside = () => {
   sidebarOpen.value = false
 }
+
+// Function to fetch keywords from localStorage or initialize with 'trending'
+const loadKeywords = () => {
+  const storedKeywords = localStorage.getItem('keyword')
+  if (storedKeywords) {
+    keywords.value = storedKeywords.split('+')
+    originalKeywords.value = [...keywords.value] // Save the original keywords
+  } else {
+    keywords.value = ['trending']
+    originalKeywords.value = ['trending'] // Save the original keywords
+  }
+}
+
+// Function to remove a keyword
+const removeKeyword = (keyword: string) => {
+  keywords.value = keywords.value.filter(k => k !== keyword)
+}
+
+// Function to update keywords on the server and in localStorage
+const updateKeywords = () => {
+  const keywordToDelete = originalKeywords.value.filter(k => !keywords.value.includes(k))
+
+  deleteUserProfileKeyword(keywordToDelete.join('+'))
+}
+
+// Mutation to update user profile keywords on the server
+
+// Save the updated keywords
+const saveKeywords = () => {
+  updateKeywords()
+}
+
+// Cancel changes and restore original keywords
+const cancelChanges = () => {
+  keywords.value = [...originalKeywords.value]
+}
+
+onMounted(() => {
+ loadKeywords()
+})
+
 </script>

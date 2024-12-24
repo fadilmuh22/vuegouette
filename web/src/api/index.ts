@@ -5,13 +5,12 @@ import {
   useMutation,
   useQuery,
   type UseMutationReturnType,
-  type UseQueryReturnType,
 } from '@tanstack/vue-query'
 import type { AxiosError } from 'axios'
 import axios from 'axios'
 import type { Ref } from 'vue'
 
-export const BASE_URL = 'http://0.0.0.0:1323/api'
+export const BASE_URL = import.meta.env.VITE_API_BASE_URL
 
 export const VideoQueryKey = 'video'
 
@@ -66,10 +65,10 @@ export const useSearchVideos = (searchTerm: Ref<string>) => {
         return Promise.reject([])
       }
 
-      return response.data.data // Return the video items
+      return response.data.data
     },
     getNextPageParam: (lastPage, pages) => {
-      return lastPage.length === VIDEOS_PER_PAGE ? pages.length + 1 : undefined
+      return lastPage.length > 0 ? pages.length + 1 : undefined
     },
   })
 }
@@ -96,10 +95,10 @@ export const usePersonalizedVideos = () => {
         return Promise.reject([])
       }
 
-      return response.data.data // Return the video items
+      return response.data.data
     },
     getNextPageParam: (lastPage, pages) => {
-      return lastPage.length === VIDEOS_PER_PAGE ? pages.length + 1 : undefined
+      return lastPage.length > 0 ? pages.length + 1 : undefined
     },
   })
 }
@@ -160,34 +159,92 @@ export const useGetUserProfileKeyword = () => {
   })
 }
 
-export const useFetchVideoLink = (
-  videoUrl: string,
-): UseQueryReturnType<string, AxiosError> => {
-  return useQuery({
-    queryKey: [VideoQueryKey, 'fetchLink', videoUrl],
-    queryFn: async () => {
-      const response = await apiClient.get<BaseResponse<string>>(
-        '/video/fetch-video',
-        {
-          params: { videoUrl },
-        },
+export const useDeleteUserProfileKeyword = () => {
+  return useMutation({
+    mutationFn: async (keywords: string) => {
+      const response = await apiClient.post<BaseResponse<string>>(
+        `/user/keyword`,
+        { keywords },
       )
-
-      // Parse the returned HTML response
-      const parser = new DOMParser()
-      const doc = parser.parseFromString(response.data.data, 'text/html')
-
-      // Find the 'a' tag inside the element with id 'button-download-ready'
-      const downloadLinkElement = doc.querySelector('#button-download-ready a')
-
-      if (!downloadLinkElement) {
-        throw new Error('Download link not found')
+      if (response.data.data.length) {
+        localStorage.setItem('keyword', response.data.data)
+      } else {
+        localStorage.setItem('keyword', 'trending')
       }
-
-      // Extract the href attribute from the found element
-      const videoLink = downloadLinkElement.getAttribute('href')
-
-      return videoLink // Return the extracted video link
+      return response.data.data
     },
+  })
+}
+
+// export const useFetchVideoLink = (
+//   videoUrl: string,
+// ): UseQueryReturnType<string, AxiosError> => {
+//   return useQuery({
+//     queryKey: [VideoQueryKey, 'fetchLink', videoUrl],
+//     queryFn: async () => {
+//       const response = await apiClient.get<BaseResponse<string>>(
+//         '/video/fetch-video',
+//         {
+//           params: { videoUrl },
+//         },
+//       )
+//
+//       // Parse the returned HTML response
+//       const parser = new DOMParser()
+//       const doc = parser.parseFromString(response.data.data, 'text/html')
+//
+//       // Find the 'a' tag inside the element with id 'button-download-ready'
+//       const downloadLinkElement = doc.querySelector('#button-download-ready a')
+//
+//       if (!downloadLinkElement) {
+//         throw new Error('Download link not found')
+//       }
+//
+//       // Extract the href attribute from the found element
+//       const videoLink = downloadLinkElement.getAttribute('href')
+//
+//       return videoLink // Return the extracted video link
+//     },
+//   })
+// }
+
+export const useFetchVideoLink = (videoUrl: string) => {
+  return useQuery<string, AxiosError>({
+    queryKey: ['fetchLink', videoUrl],
+    queryFn: async () => {
+      const requestBody = { language_id: 1, query: videoUrl }
+
+      try {
+        const response = await axios.post<string>(
+          'https://cors-proxy.fringe.zone/https://ttsave.app/download',
+          requestBody,
+          { headers: { 'Content-Type': 'application/json' } },
+        )
+
+        const parser = new DOMParser()
+        const doc = parser.parseFromString(response.data, 'text/html')
+
+        const downloadLinkElement = doc.querySelector(
+          '#button-download-ready a',
+        )
+
+        if (!downloadLinkElement) {
+          throw new Error('Download link not found')
+        }
+
+        const videoLink = downloadLinkElement.getAttribute('href')
+
+        if (!videoLink) {
+          throw new Error('Video link is invalid')
+        }
+
+        return videoLink
+      } catch (error) {
+        throw new Error(
+          error instanceof Error ? error.message : 'Unknown error',
+        )
+      }
+    },
+    enabled: !!videoUrl,
   })
 }
