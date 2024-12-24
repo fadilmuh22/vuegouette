@@ -1,45 +1,37 @@
-FROM golang:1.23-alpine AS production
+FROM node:22-alpine AS frontend-builder
 
-WORKDIR /server
+WORKDIR /web
+COPY web/package.json web/package-lock.json ./
+RUN npm install
+COPY web ./
+RUN npm run build-only
 
-COPY go.* ./
+FROM golang:1.23 AS backend-builder
+WORKDIR /app
 
+COPY go.mod go.sum ./
 RUN go mod download
-
-COPY . .
-
+COPY . ./
+ENV CGO_ENABLED=0 GOOS=linux GOARCH=amd64
 RUN go build -o main cmd/main.go
 
-CMD ["./main"]
+FROM alpine:3.18
+WORKDIR /app
 
-FROM golang:1.23-alpine AS development
+ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
 
-# Install system dependencies
-RUN apk update && apk add --no-cache gcc libc-dev make
+RUN apk add --no-cache \
+    udev \
+    ttf-freefont \
+    chromium
 
-RUN apk update && apk upgrade && apk add --no-cache bash git && apk add --no-cache chromium
+COPY --from=backend-builder /app/main .
 
-# Installs latest Chromium package.
-RUN echo @edge http://nl.alpinelinux.org/alpine/edge/community >> /etc/apk/repositories \
-    && echo @edge http://nl.alpinelinux.org/alpine/edge/main >> /etc/apk/repositories \
-    && apk add --no-cache \
-    harfbuzz@edge \
-    nss@edge \
-    freetype@edge \
-    ttf-freefont@edge \
-    && rm -rf /var/cache/* \
-    && mkdir /var/cache/apkk
+COPY --from=frontend-builder /static /app/static
 
-WORKDIR /server
+ENV PORT=1323
+EXPOSE 1323
 
-RUN CGO_ENABLED=0 go install -ldflags "-s -w -extldflags '-static'" github.com/go-delve/delve/cmd/dlv@latest
+# Start the Go application
+CMD [ "./main" ]
 
-RUN CGO_ENABLED=0 go install github.com/air-verse/air@latest
-
-COPY go.* ./
-
-RUN go mod download
-
-COPY . .
-
-CMD [ "air", "-c", ".air.toml" ]
