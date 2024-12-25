@@ -4,11 +4,42 @@ A full-stack application for scraping TikTok videos, built using Go for the back
 
 ## Table of Contents
 
+- [The Apps](#the-apps)
 - [Libraries Used](#libraries-used)
 - [Library Breakdown](#library-breakdown)
 - [Running the Project](#running-the-project)
   - [Using Docker](#using-docker)
   - [Manually](#manually)
+
+## The Apps
+
+### Here are the screenshots of the apps
+
+| Home Page (Personalized) |
+|:--:|
+| <img src="doc/images/home.png" width="480" /> |
+
+| Infinite Scrolling |
+|:--:|
+| <img src="doc/images/scrolling.png" width="480" /> |
+
+| Fullscreen Video |
+|:--:|
+| <img src="doc/images/fullscreen.png" width="480" /> |
+
+### Using different themes / color palettes
+
+| Default (Search Page) |
+|:--:|
+| <img src="doc/images/search.png" width="480" /> |
+
+| Senti |
+|:--:|
+| <img src="doc/images/senti.png" width="480" /> |
+
+| CV |
+|:--:|
+| <img src="doc/images/cv.png" width="480" /> |
 
 ## Libraries Used
 
@@ -67,8 +98,8 @@ A full-stack application for scraping TikTok videos, built using Go for the back
 
 
 ## Access the Application
-- **Backend**: http://localhost:1323/api
-- **Frontend**: http://localhost:5173
+- **Backend**: http://localhost/api
+- **Frontend**: http://localhost
 
 
 ## Scraping with Chromedp

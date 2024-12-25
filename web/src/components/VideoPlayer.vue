@@ -75,6 +75,7 @@ onMounted(() => {
 })
 
 onBeforeUnmount(() => {
+  videoPlayerInstance.value.volume = 0
   videoPlayerInstance.value.stop()
 })
 </script>

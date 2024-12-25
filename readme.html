@@ -1,0 +1,217 @@
+<h1 id="vuegouette-tiktok-video-scraper">VueGouette: TikTok Video
+Scraper</h1>
+<p>A full-stack application for scraping TikTok videos, built using Go
+for the backend and Vue.js for the frontend.</p>
+<h2 id="table-of-contents">Table of Contents</h2>
+<ul>
+<li><a href="#the-apps">The Apps</a></li>
+<li><a href="#libraries-used">Libraries Used</a></li>
+<li><a href="#library-breakdown">Library Breakdown</a></li>
+<li><a href="#running-the-project">Running the Project</a>
+<ul>
+<li><a href="#using-docker">Using Docker</a></li>
+<li><a href="#manually">Manually</a></li>
+</ul></li>
+</ul>
+<h2 id="the-apps">The Apps</h2>
+<h3 id="here-are-the-screenshots-of-the-apps">Here are the screenshots
+of the apps</h3>
+<h3 id="using-different-themes-color-palettes">Using different themes /
+color palettes</h3>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: center;">Home Page (Personalized)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td
+style="text-align: center;"><img src="doc/images/home.png" width="480" /></td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: center;">Infinite Scrolling</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td
+style="text-align: center;"><img src="doc/images/scrolling.png" width="480" /></td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: center;">Fullscreen Video</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td
+style="text-align: center;"><img src="doc/images/fullscreen.png" width="480" /></td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: center;">Default (Search Page)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td
+style="text-align: center;"><img src="doc/images/search.png" width="480" /></td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: center;">Senti</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td
+style="text-align: center;"><img src="doc/images/senti.png" width="480" /></td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: center;">CV</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td
+style="text-align: center;"><img src="doc/images/cv.png" width="480" /></td>
+</tr>
+</tbody>
+</table>
+<h2 id="libraries-used">Libraries Used</h2>
+<h3 id="backend-libraries">Backend Libraries</h3>
+<ul>
+<li><a href="https://github.com/labstack/echo">Echo</a>: A
+high-performance, minimalist web framework for Go.</li>
+<li><a href="https://gorm.io/index.html">GORM</a>: An ORM library for
+Golang that provides an easy way to interact with databases.</li>
+<li><a href="https://github.com/go-redis/redis">Go Redis</a>: A Redis
+client for Go, allowing easy interaction with Redis.</li>
+<li><a href="https://github.com/golang-jwt/jwt-go">JWT</a>: A Go
+implementation of JSON Web Tokens for secure API authentication.</li>
+<li><a href="https://github.com/chromedp/chromedp">Chromedp</a>: A Go
+library for driving headless Chrome or Chromium browsers.</li>
+</ul>
+<h3 id="frontend-libraries">Frontend Libraries</h3>
+<ul>
+<li><a href="https://vuejs.org/">Vue.js</a>: A progressive JavaScript
+framework for building user interfaces.</li>
+<li><a href="https://router.vuejs.org/">Vue Router</a>: The official
+router for Vue.js that enables navigation between different
+components.</li>
+<li><a href="https://axios-http.com/">Axios</a>: A promise-based HTTP
+client for the browser and Node.js.</li>
+<li><a href="https://github.com/sampotts/plyr">Plyr Vue</a>: A simple,
+customizable HTML5 media player with a Vue.js wrapper.</li>
+<li><a href="https://tailwindcss.com/">Tailwind CSS</a>: A utility-first
+CSS framework for building modern user interfaces.</li>
+<li><a href="https://tanstack.com/query/">Tanstack Query</a>: Powerful
+asynchronous state management for TS/JS, React, Solid, Vue, Svelte and
+Angular</li>
+</ul>
+<h2 id="running-the-project">Running the Project</h2>
+<h3 id="using-docker">Using Docker</h3>
+<ol type="1">
+<li><strong>Clone the Repository</strong>:</li>
+</ol>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> clone https://github.com/fadilmuh22/vuegouette.git</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> vuegouette</span></code></pre></div>
+<ol start="2" type="1">
+<li><strong>Build the Docker Image</strong>:</li>
+</ol>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">docker-compose</span> build</span></code></pre></div>
+<ol start="3" type="1">
+<li><strong>Run the Docker Container</strong>:</li>
+</ol>
+<div class="sourceCode" id="cb3"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ex">docker-compose</span> up</span></code></pre></div>
+<h3 id="manually">Manually</h3>
+<ol type="1">
+<li><strong>Clone the Repository</strong>:</li>
+</ol>
+<div class="sourceCode" id="cb4"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> clone https://github.com/fadilmuh22/vuegouette.git</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> vuegouette</span></code></pre></div>
+<ol start="2" type="1">
+<li><strong>Start the Backend</strong>:</li>
+</ol>
+<div class="sourceCode" id="cb5"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="ex">air</span> <span class="at">-c</span> .air.toml</span></code></pre></div>
+<ol start="3" type="1">
+<li><strong>Start the Frontend</strong>:</li>
+</ol>
+<div class="sourceCode" id="cb6"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> web</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="ex">npm</span> install</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="ex">npm</span> run dev</span></code></pre></div>
+<h2 id="access-the-application">Access the Application</h2>
+<ul>
+<li><strong>Backend</strong>: http://localhost/api</li>
+<li><strong>Frontend</strong>: http://localhost</li>
+</ul>
+<h2 id="scraping-with-chromedp">Scraping with Chromedp</h2>
+<p>The application uses the Chromedp library to scrape TikTok videos.
+Chromedp enables programmatic control of headless Chrome, allowing us to
+navigate web pages and extract information. The scraping process
+includes: - Initializing a Chromedp context for each user, ensuring that
+we maintain state across requests. - Navigating to the TikTok search
+page based on user-defined keywords. - Extracting video data from the
+page, including video URLs, user avatars, video titles, and tags.</p>
+<h2 id="state-management-for-users-and-keywords">State Management for
+Users and Keywords</h2>
+<p>To maintain state for each user and keyword combination, the
+application employs a concurrency-safe map (userContexts) that
+associates user IDs with their respective Chromedp contexts. Each
+context has an expiration policy to free up resources after a specified
+period of inactivity. This allows multiple users to scrape TikTok
+independently without interference.</p>
+<h2 id="personalized-video-recommendations">Personalized Video
+Recommendations</h2>
+<p>The application provides personalized video recommendations based on
+user-defined keywords. Users will automaticall update a new keyword when
+they watch a video add it to their profile, which the application uses
+to scrape TikTok videos. The application then displays videos that match
+the user’s keywords, allowing users to discover content that aligns with
+their interests.</p>
+<h2 id="switching-themes-in-tailwind-css">Switching Themes in Tailwind
+CSS</h2>
+<p>The Tailwind CSS configuration supports multiple themes through a
+custom color map. The colorsMap object defines color palettes for
+different themes (e.g., default, senti, and cv). You can switch themes
+by changing the colors used in your components based on the desired
+theme. To use a different theme, simply update the theme property in
+your component or apply classes according to your color configuration in
+tailwind.config.js.</p>
+<h2 id="navigating-video-in-fullscreen-mode">Navigating Video in
+Fullscreen Mode</h2>
+<p>The application uses the Plyr Vue media player to display TikTok
+videos. Plyr Vue provides a simple, customizable HTML5 media player that
+supports full-screen mode. When clicking a video thumbnail, the
+application opens the video in full-screen mode, allowing users to watch
+videos in a larger format. The user can utilizes the shortcuts for
+navigating such as the arrow keys and page up &amp; down to move between
+videos and escape for exiting fullscreen mode. Mobile users can swipe up
+or down to navigate between videos.</p>
+<h2 id="license">License</h2>
+<p>This project is licensed under the MIT License - see the <a
+href="LICENSE">LICENSE</a> file for details.</p>
